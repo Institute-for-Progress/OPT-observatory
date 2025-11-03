@@ -1,0 +1,16 @@
+# Large data files (not in Git - download from Zenodo)
+raw/*.csv
+cleaned/*.csv
+
+# Generated files
+*.parquet
+staging/*.csv
+staging/*.parquet
+
+# Keep directory structure
+!raw/.gitkeep
+!cleaned/.gitkeep
+!staging/.gitkeep
+
+# Keep supporting data (small enough for Git or Git LFS)
+!supporting/*.csv
