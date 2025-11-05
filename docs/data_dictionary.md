@@ -52,7 +52,9 @@ We have not verified whether information that ought to persist across rows alway
 
 **Identifying keys**
 
-There are two unique personal identifiers in the data, `STUDENT_KEY` and `INDIVIDUAL_KEY`. **INDIVIDUAL_KEY values are only unique WITHIN each year's file, NOT across years.** I.e. the same number may point to different individuals in different year's files. We use `INDIVIDUAL_KEY` to identify unique individuals within each year. 
+There are two unique personal identifiers in the data, `STUDENT_KEY` and `INDIVIDUAL_KEY`. **INDIVIDUAL_KEY values are only unique WITHIN each year's file, NOT across years.** I.e. the same number may point to different individuals in different year's files. We use `INDIVIDUAL_KEY` to identify unique individuals within each year.
+
+**Note:** A single `INDIVIDUAL_KEY` can have multiple `STUDENT_KEY` values (e.g., if someone completes a Bachelor's and then a PhD, they would have the same `INDIVIDUAL_KEY` but different `STUDENT_KEY` values for each program). However, each `STUDENT_KEY` corresponds to only one `INDIVIDUAL_KEY`. 
 
 This means:
 
