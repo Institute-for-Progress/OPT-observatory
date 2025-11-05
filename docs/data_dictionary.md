@@ -169,7 +169,7 @@ The following is our interpretation of the meaning of each variable in the data.
 
 | Position | Column Name | Description | Data Type | Variability | Notes |
 |----------|------------|-------------|-----------|-------------|-------|
-|41|**REQUESTED_STATUS** | Requested change of visa status | String | Variable | Change of status from F-1 to another visa type; codes are generally self-explanatory (e.g., "h1b", "o1a"); "1b1" and "1b3" are part of H-1B series; typically constant across individual's rows |
+|41|**REQUESTED_STATUS** | Requested change of visa status | String | Variable | Change of status from F-1 to another visa type; codes are generally self-explanatory (e.g., "o1a"). H-1B variants: "1b1" and "h1b" are regular H-1Bs, "1b2" is H-1B2, "1b3" is H-1B3, "hsc" is H-1B1; typically constant across individual's rows |
 |42|**STATUS_CODE** | Not reliable; interpretation unclear | String (lowercase) | Variable | Values: "completed", "deactivated", "terminated", "active", "canceled" |
 
 ### Administrative Fields
