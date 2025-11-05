@@ -1,137 +1,184 @@
-# SEVIS F-1 Data Dictionary
+# Data Dictionary
 
 ## Overview
 
-This document describes the structure and content of the SEVIS (Student and Exchange Visitor Information System) F-1 visa data obtained through FOIA requests from U.S. Immigration and Customs Enforcement (ICE).
+This page describes the structure and content of the data underlying the the Institute for Progress' OPT Observatory. Obtained via a FOIA request from U.S. Immigration and Customs Enforcement (ICE), the data is an excerpt from the Student and Exchange Visitor Information System (SEVIS), accessible in the ICE FOIA Library under #43657, with a release date of October 1st 2024. While the OPT Observatory and the remainder of this document only describe the data on F-1 international students, a small amount of information on J-1 exchange visitors was also included.
 
-## Important: Data Structure
+## Data Processing Pipeline
 
-### Record-Level vs Person-Level Data
+### Accessing the Raw FOIA Data
 
-**This is NOT a person-centric database.** Key points:
+To find the original raw data from ICE:
+- Visit the ICE FOIA Library: https://www.ice.gov/foia/library
+- Search for: **43657**
+- Expect to see 13 files dated October 1, 2024 available for download. These should include one folder for each year of F-1 data from 2004-2023, as well as J-1 data
 
-- Each **row represents a record** (authorization period, status change, or employment authorization)
-- The **same person appears multiple times** across different records
-- Records can represent:
-  - Different time periods for the same person
-  - Different authorization periods (e.g., initial study period vs OPT)
-  - Different employers during OPT
-  - Status changes or program changes
+Our processing pipeline for the data is as follows:
 
-**Example:** A single student who completed a Master's degree and then worked on OPT at two different companies would have **at least 3 separate records**:
-1. Their academic program record
-2. Their first OPT employment period
-3. Their second OPT employment period
+1. **Raw FOIA data**: Original Excel files, multiple per year
+2. **Combined by year**: All Excel files for a given year combined into a single CSV by standardizing their headers (e.g., `2004_all.csv`)
+3. **Cleaned data**: An extensively cleaned single CSV file for each year (e.g., `cleaned_2004_all.csv`)
 
-### Identifying Individuals
+Unless there is a compelling reason not to, we strongly encourage data users to work off the cleaned files. For detailed information on the cleaning process, see the [Data Processing Documentation](data_processing.md).
 
-- **INDIVIDUAL_KEY** and **STUDENT_KEY**: These appear to be person-level identifiers
-- Multiple records with the same INDIVIDUAL_KEY/STUDENT_KEY represent the same person at different points in time
-- **NOTE**: Research and validate these identifiers before using for longitudinal analysis
+## Data Structure
 
-### Temporal Organization
+### How Are Records Organized?
 
-**Coverage:** 2004-2023 (data from 2010-2022 is most reliable; see data_processing.md for details)
+**SEVIS as a log of events**
 
-**File structure after processing:**
-- One file per year: `cleaned_YYYY_all.csv`
-- Year assignment is based on [NEED TO CLARIFY: authorization date? entry date? status date?]
-- The same person may appear in multiple year files if their authorizations span multiple years
+**SEVIS is NOT a person-centric database** and information about a given individual is often distributed across multiple rows. Instead, **each row represents a discrete event or status change for a person**. Most people undergo many different events related to their education and work logged in SEVIS, and have multiple rows with information about them. As is typical of administrative data, SEVIS record keeping is imperfect. However, a new record is usually created when:
 
-## Data Source and FOIA Redactions
+- Someone enters or exits the United States
+- Their visa status changes
+- They change educational programs or institutions
+- They begin or end work authorization (OPT/CPT)
+- They change employers during OPT
+- Other administrative events occur (program extensions, status reinstatements, etc.)
 
-This data was obtained through Freedom of Information Act (FOIA) requests to ICE. **Important caveats:**
+**Example:** Consider an international student who: 
+1. Arrives in the U.S. for undergraduate studies in 2012 (→ Record 1)
+2. Completes their Bachelor's degree in 2016 (→ Record 2)
+3. Enrolls in a Master's program at a different university in 2016 (→ Record 3)
+4. Begins OPT employment at Company A in 2017 (→ Record 4)
+5. Changes jobs to Company B during their OPT period in 2018 (→ Record 5)
+6. Leaves the U.S. at the end of their OPT authorization in 2019 (→ Record 6)
 
-1. **Pre-redacted data**: Personally identifiable information was removed/replaced by ICE before release
-2. **Placeholder values**: Some columns (e.g., Date_of_Birth) contain nonsense placeholder values, not real data
-3. **Redacted columns**: Certain fields were entirely removed by the FOIA office
-4. **Data quality varies by year**: Completeness and consistency improved over time (post-2010 data is more reliable)
+**This single student would have at least 6 records, with "new" information found only a subset of the columns**. Some columns represent unchanging values and are constant across rows/records (e.g. `FIRST_ENTRY_DATE` or `COUNTRY_OF_BIRTH`). Other columns are the reason for the record's creation, and will vary between rows (e.g. `SCHOOL_NAME`, (OPT) `AUTHORIZATION_START_DATE`). See the Column Definitions section below for detailed notes on how we think columns do or do not vary across an individual's records.
+
+We have not verified whether information that ought to persist across rows always does, and avoid analyses where this would be a confounding factor. 
+
+### How Are Individuals Identified?
+
+**Identifying keys**
+
+There are two unique personal identifiers in the data, `STUDENT_KEY` and `INDIVIDUAL_KEY`. **INDIVIDUAL_KEY values are only unique WITHIN each year's file, NOT across years.** I.e. the same number may point to different individuals in different year's files. We use `INDIVIDUAL_KEY` to identify unique individuals within each year. 
+
+This means:
+
+- Within `cleaned_2015_all.csv`, all records with `INDIVIDUAL_KEY = 12345` represent the same person
+- You can trace that person's complete history (all their records) within the 2015 file
+- Across different year files, `INDIVIDUAL_KEY = 12345` in the 2015 file and `INDIVIDUAL_KEY = 12345` in the 2016 file may represent **different people**
+- You **cannot** link records across different year files
+
+### How Are Records Organized Into Year Files?
+
+While the data provided is segmented into years, the metric which breaks it up is not described. That is, **we do not definitively know why any given record might appear in one year and not another**. 
+
+We act on the **assumption that:** for any given year's file, **if a student has any record in that year, ALL of their records appear in that year** — past, present, and future. Note that most data presented in the OPT Observatory only relies on the (more conservative) assumption that all of a student's records appear in their year of graduation.
+
+**Example:** If the student described above graduates in 2016, then the `cleaned_2016_all.csv` file would include:
+- Their initial entry record from 2012
+- Their Bachelor's completion record from 2016
+- Their Master's program start record from 2016
+- Their OPT employment records from 2017
+- Their job change record from 2018
+- Their departure record from 2019
+
+**In other words:** The 2016 file contains their **complete SEVIS history**, not just events that occurred in 2016.
+
+## Known Data Quality Issues
+
+1. Extensive **missing data.** Many fields, especially ones related to employer location, are missing data.
+2. **Miscoded data,** e.g. first entry dates in the year 3000, or program end dates that are earlier than that program's start date. In general these are nullified, and not counted towards totals.
+3. **Suspected mislabeling of files,** we suspect that the data labeled 2005-2008 was incorrectly titled, and should be one fiscal year higher (2005 → FY 2006, 2006 → FY 2007, 2007 → FY 2008, 2008 → FY 2009), and that the FY2009 data is missing. The FY2009 and FY2010 files provided are identical, and discontinuities in enrollments and changes of status between 2008 and 2009 resolve when this assumption is implemented. This has not been verified with the FOIA office, and the OPT Observatory does not analyze data for these years.
+4. **Unclear STATUS_CODE interpretation.** The STATUS_CODE field is not reliable and we cannot definitively determine whether students graduated based on available fields. There is no clear indicator of program completion or graduation.
 
 ## Column Definitions
 
+The following is our interpretation of the meaning of each variable in the data.
+
+### Table Column Meanings
+
+- **Position**: The column number in the original data files (1-46)
+- **Column Name**: The variable name as it appears in the cleaned CSV files
+- **Description**: Our best interpretation of what the variable represents
+- **Data Type**: The format of the data (String, Integer, Numeric, Date)
+- **Variability**: Whether the value is **Constant** (same across all of an individual's records) or **Variable** (can change across an individual's records). A dash (-) indicates the field doesn't apply to individual-level variability.
+- **Notes**: Additional details about data quality, transformations, or interpretation
+
 ### Student Demographics
 
-| Column Name | Description | Data Type | Notes |
-|------------|-------------|-----------|-------|
-| **COUNTRY_OF_BIRTH** | Student's country of birth | String (lowercase) | Standardized to lowercase by cleaning script |
-| **COUNTRY_OF_CITIZENSHIP** | Student's country of citizenship | String (lowercase) | May differ from country of birth |
-| **INDIVIDUAL_KEY** | Person-level identifier | Integer | Multiple records can share the same key; use for tracking individuals across records |
-| **STUDENT_KEY** | Alternative person-level identifier | Integer | Relationship to INDIVIDUAL_KEY needs verification |
+| Position | Column Name | Description | Data Type | Variability | Notes |
+|----------|------------|-------------|-----------|-------------|-------|
+|1|**COUNTRY_OF_BIRTH** | Student's country of birth | String (lowercase) | Constant | - |
+|2|**COUNTRY_OF_CITIZENSHIP** | Student's country of citizenship | String (lowercase) | Constant | May differ from country of birth |
+|44|**INDIVIDUAL_KEY** | Person-level identifier | Integer | - | Multiple records can share the same key; use for tracking individuals across records |
+|45|**STUDENT_KEY** | Program-level identifier | Integer | - | Tracks individual programs of study; one person (INDIVIDUAL_KEY) can have multiple STUDENT_KEYs (e.g., BA then PhD) |
 
 ### Entry and Visa Information
 
-| Column Name | Description | Data Type | Notes |
-|------------|-------------|-----------|-------|
-| **FIRST_ENTRY_DATE** | Date of first entry to the U.S. | Date (YYYY-MM-DD) | May be blank; dates after 2024-01-01 nullified by cleaning script |
-| **LAST_ENTRY_DATE** | Date of most recent entry to the U.S. | Date (YYYY-MM-DD) | May be blank for students who haven't left/re-entered |
-| **LAST_DEPARTURE_DATE** | Date of most recent departure from U.S. | Date (YYYY-MM-DD) | May be blank if student hasn't departed |
-| **CLASS_OF_ADMISSION** | Visa class at entry | String (lowercase) | Typically "f1" for F-1 students |
-| **VISA_ISSUE_DATE** | Date visa was issued | Date (YYYY-MM-DD) | May be blank |
-| **VISA_EXPIRATION_DATE** | Date visa expires | Date (YYYY-MM-DD) | May be blank |
+| Position | Column Name | Description | Data Type | Variability | Notes |
+|----------|------------|-------------|-----------|-------------|-------|
+|3|**FIRST_ENTRY_DATE** | Date of first entry to the U.S. | Date (YYYY-MM-DD) | Constant | May be blank; dates after 2024-01-01 are nullified |
+|4|**LAST_ENTRY_DATE** | Date of most recent entry to the U.S. | Date (YYYY-MM-DD) | Variable | May be blank for students who haven't left/re-entered; updates with new entries |
+|5|**LAST_DEPARTURE_DATE** | Date of most recent departure from U.S. | Date (YYYY-MM-DD) | Variable | May be blank if student hasn't departed; updates with departures |
+|6|**CLASS_OF_ADMISSION** | Visa class at entry | String (lowercase) | Constant | All records in cleaned data are "f1" |
+|7|**VISA_ISSUE_DATE** | Date visa was issued | Date (YYYY-MM-DD) | Variable | May be blank; can change if visa is reissued |
+|8|**VISA_EXPIRATION_DATE** | Date visa expires | Date (YYYY-MM-DD) | Variable | May be blank; changes with visa renewals |
 
 ### Educational Program Information
 
-| Column Name | Description | Data Type | Notes |
-|------------|-------------|-----------|-------|
-| **SCHOOL_NAME** | Name of educational institution | String (lowercase) | Cleaned/standardized by script |
-| **CAMPUS_CITY** | City where campus is located | String (lowercase) | Cleaned/standardized |
-| **CAMPUS_STATE** | State where campus is located | String (lowercase) | Full state names (not abbreviations) after cleaning |
-| **CAMPUS_ZIP_CODE** | ZIP code of campus | String | May be 5-digit or 9-digit format |
-| **MAJOR_1_CIP_CODE** | Primary major CIP code | Numeric | Classification of Instructional Programs code |
-| **MAJOR_1_DESCRIPTION** | Primary major description | String (lowercase) | Human-readable major name |
-| **MAJOR_2_CIP_CODE** | Secondary major CIP code | Numeric | 0.0 if no second major |
-| **MAJOR_2_DESCRIPTION** | Secondary major description | String (lowercase) | Blank if no second major |
-| **MINOR_CIP_CODE** | Minor CIP code | Numeric | 0.0 if no minor |
-| **MINOR_DESCRIPTION** | Minor description | String (lowercase) | Blank if no minor |
-| **PROGRAM_START_DATE** | Start date of academic program | Date (YYYY-MM-DD) | |
-| **PROGRAM_END_DATE** | End date of academic program | Date (YYYY-MM-DD) | Expected or actual completion date |
-| **STUDENT_EDU_LEVEL_DESC** | Educational level | String (lowercase) | E.g., "bachelor's", "master's", "doctorate" |
+| Position | Column Name | Description | Data Type | Variability | Notes |
+|----------|------------|-------------|-----------|-------------|-------|
+|9|**SCHOOL_NAME** | Name of educational institution | String (lowercase) | Variable | - |
+|10|**CAMPUS_CITY** | City of school address | String (lowercase) | Variable | - |
+|11|**CAMPUS_STATE** | State of school address | String (lowercase) | Variable | Full state names (not abbreviations) |
+|12|**CAMPUS_ZIP_CODE** | ZIP code of school address | String | Variable | - |
+|13|**MAJOR_1_CIP_CODE** | Primary major CIP code | Numeric | Variable | Classification of Instructional Programs code; 6-digit with 4 decimal places (e.g., "11.0701") |
+|14|**MAJOR_1_DESCRIPTION** | Primary major name | String (lowercase) | Variable | E.g., "computer science", "business administration" |
+|15|**MAJOR_2_CIP_CODE** | Secondary major CIP code | Numeric | Variable | 6-digit with 4 decimal places; 0.0 if no second major |
+|16|**MAJOR_2_DESCRIPTION** | Secondary major name | String (lowercase) | Variable | Blank if no second major |
+|17|**MINOR_CIP_CODE** | Minor CIP code | Numeric | Variable | 6-digit with 4 decimal places; 0.0 if no minor |
+|18|**MINOR_DESCRIPTION** | Minor name | String (lowercase) | Variable | Blank if no minor |
+|19|**PROGRAM_START_DATE** | Start date of academic program | Date (YYYY-MM-DD) | Variable | Different for each program/record |
+|20|**PROGRAM_END_DATE** | End date of academic program | Date (YYYY-MM-DD) | Variable | Expected completion date at time of program start; different for each program/record |
+|43|**STUDENT_EDU_LEVEL_DESC** | Educational level | String (lowercase) | Variable | E.g., "bachelor's", "master's", "doctorate"; changes with degree progression |
 
 ### Employment Information (OPT/CPT)
 
-| Column Name | Description | Data Type | Notes |
-|------------|-------------|-----------|-------|
-| **EMPLOYER_NAME** | Name of employer | String (lowercase) | Only for students with work authorization |
-| **EMPLOYER_CITY** | City where employer is located | String (lowercase) | Cleaned/standardized |
-| **EMPLOYER_STATE** | State where employer is located | String (lowercase) | Full state names after cleaning |
-| **EMPLOYER_ZIP_CODE** | ZIP code of employer | String | |
-| **JOB_TITLE** | Job title or position | String (lowercase) | |
-| **EMPLOYMENT_DESCRIPTION** | Type of employment authorization | String (lowercase) | "opt" = Optional Practical Training; "cpt" = Curricular Practical Training |
-| **AUTHORIZATION_START_DATE** | Start date of work authorization | Date (YYYY-MM-DD) | |
-| **AUTHORIZATION_END_DATE** | End date of work authorization | Date (YYYY-MM-DD) | |
-| **OPT_AUTHORIZATION_START_DATE** | OPT-specific authorization start | Date (YYYY-MM-DD) | May overlap with AUTHORIZATION_START_DATE |
-| **OPT_AUTHORIZATION_END_DATE** | OPT-specific authorization end | Date (YYYY-MM-DD) | May overlap with AUTHORIZATION_END_DATE |
-| **OPT_EMPLOYER_START_DATE** | Date employment with this employer began | Date (YYYY-MM-DD) | Can differ from authorization dates if student changed employers mid-OPT |
-| **OPT_EMPLOYER_END_DATE** | Date employment with this employer ended | Date (YYYY-MM-DD) | Blank if still employed or authorization ended |
-| **EMPLOYMENT_OPT_TYPE** | Type of OPT | String (lowercase) | E.g., "post-completion" (after graduation) vs pre-completion |
-| **EMPLOYMENT_TIME** | Full-time or part-time employment | String (lowercase) | "full time" or "part time" |
-| **UNEMPLOYMENT_DAYS** | Days of unemployment during OPT | Numeric | Cumulative unemployment days; OPT allows max 90 days |
+| Position | Column Name | Description | Data Type | Variability | Notes |
+|----------|------------|-------------|-----------|-------------|-------|
+|21|**EMPLOYER_NAME** | Name of employer | String (lowercase) | Variable | Only for students with work authorization |
+|22|**EMPLOYER_CITY** | City of employer address | String (lowercase) | Variable | - |
+|23|**EMPLOYER_STATE** | State of employer address | String (lowercase) | Variable | Full state names (not abbreviations) |
+|24|**EMPLOYER_ZIP_CODE** | ZIP code of employer address | String | Variable | - |
+|25|**JOB_TITLE** | Job title or position | String (lowercase) | Variable | Sparsely populated |
+|26|**EMPLOYMENT_DESCRIPTION** | Type of employment authorization | String (lowercase) | Variable | Values: "opt" (Optional Practical Training) or "cpt" (Curricular Practical Training) |
+|27|**AUTHORIZATION_START_DATE** | Start date of work authorization | Date (YYYY-MM-DD) | Variable | Always present if OPT_AUTHORIZATION_START_DATE is present |
+|28|**AUTHORIZATION_END_DATE** | End date of work authorization | Date (YYYY-MM-DD) | Variable | Always present if OPT_AUTHORIZATION_END_DATE is present |
+|29|**OPT_AUTHORIZATION_START_DATE** | OPT-specific authorization start | Date (YYYY-MM-DD) | Variable | Less comprehensive; when present, matches AUTHORIZATION_START_DATE |
+|30|**OPT_AUTHORIZATION_END_DATE** | OPT-specific authorization end | Date (YYYY-MM-DD) | Variable | Less comprehensive; when present, matches AUTHORIZATION_END_DATE |
+|31|**OPT_EMPLOYER_START_DATE** | Date employment with this employer began | Date (YYYY-MM-DD) | Variable | Can differ from authorization dates if student changed employers mid-OPT |
+|32|**OPT_EMPLOYER_END_DATE** | Date employment with this employer ended | Date (YYYY-MM-DD) | Variable | May differ from authorization dates |
+|33|**EMPLOYMENT_OPT_TYPE** | Type of OPT | String (lowercase) | Variable | Values: "post-completion", "pre-completion", or "stem"; individuals often have multiple types |
+|34|**EMPLOYMENT_TIME** | Full-time or part-time employment | String (lowercase) | Variable | Values: "full time" or "part time" |
+|35|**UNEMPLOYMENT_DAYS** | Days of unemployment during OPT | Numeric | Variable | Cumulative days; OPT allows max 90 days |
 
 ### Financial Information
 
-| Column Name | Description | Data Type | Notes |
-|------------|-------------|-----------|-------|
-| **TUITION_FEES** | Annual tuition and fees (USD) | Numeric | Self-reported or institutional data |
-| **STUDENTS_PERSONAL_FUNDS** | Student's personal funds (USD) | Numeric | Financial support from student/family |
-| **FUNDS_FROM_THIS_SCHOOL** | Funding from the institution (USD) | Numeric | Scholarships, assistantships, etc. |
-| **FUNDS_FROM_OTHER_SOURCES** | Funding from other sources (USD) | Numeric | External scholarships, government funding, etc. |
-| **ON_CAMPUS_EMPLOYMENT** | On-campus employment income (USD) | Numeric | May be 0.0 or blank if no on-campus work |
+| Position | Column Name | Description | Data Type | Variability | Notes |
+|----------|------------|-------------|-----------|-------------|-------|
+|36|**TUITION_FEES** | Annual tuition and fees (USD) | Numeric | Variable | Self-reported or institutional data |
+|37|**STUDENTS_PERSONAL_FUNDS** | Student's personal funds (USD) | Numeric | Variable | Financial support from student/family |
+|38|**FUNDS_FROM_THIS_SCHOOL** | Funding from the institution (USD) | Numeric | Variable | Scholarships, assistantships, etc. |
+|39|**FUNDS_FROM_OTHER_SOURCES** | Funding from other sources (USD) | Numeric | Variable | External scholarships, government funding, etc. |
+|40|**ON_CAMPUS_EMPLOYMENT** | Likely earnings from on-campus employment (USD) | Numeric | Variable | Interpretation uncertain; may be 0.0 or blank if no on-campus work |
 
 ### Status Information
 
-| Column Name | Description | Data Type | Notes |
-|------------|-------------|-----------|-------|
-| **REQUESTED_STATUS** | Status change requested | String | May be blank if no status change requested |
-| **STATUS_CODE** | Current status of the record | String (lowercase) | E.g., "completed", "deactivated", "active" |
+| Position | Column Name | Description | Data Type | Variability | Notes |
+|----------|------------|-------------|-----------|-------------|-------|
+|41|**REQUESTED_STATUS** | Requested change of visa status | String | Variable | Change of status from F-1 to another visa type; codes are generally self-explanatory (e.g., "h1b", "o1a"); "1b1" and "1b3" are part of H-1B series; typically constant across individual's rows |
+|42|**STATUS_CODE** | Not reliable; interpretation unclear | String (lowercase) | Variable | Values: "completed", "deactivated", "terminated", "active", "canceled" |
 
 ### Administrative Fields
 
-| Column Name | Description | Data Type | Notes |
-|------------|-------------|-----------|-------|
-| **YEAR** | Year indicator (uppercase) | Integer | Added during initial file combining |
-| **Year** | Year indicator (capitalized) | Integer | May be duplicate of YEAR; verify which to use |
+| Position | Column Name | Description | Data Type | Variability | Notes |
+|----------|------------|-------------|-----------|-------------|-------|
+|46|**Year** | Fiscal year indicator | Integer | - | FY is Oct 1 - Sept 30; indicates which year file contains this record |
 
-## Understanding OPT vs CPT
+<!-- ## Understanding OPT vs CPT
 
 **OPT (Optional Practical Training):**
 - Work authorization for F-1 students to work in their field of study
@@ -151,94 +198,13 @@ This data was obtained through Freedom of Information Act (FOIA) requests to ICE
 **In this dataset:**
 - `EMPLOYMENT_DESCRIPTION` = "opt" indicates OPT records
 - `EMPLOYMENT_DESCRIPTION` = "cpt" indicates CPT records
-- Many records have no employment information (study-only records)
+- Many records have no employment information (study-only records) -->
 
-## Common Analysis Scenarios
 
-### Counting Unique Individuals
-
-❌ **Incorrect:** `nrow(data)` - This counts records, not people
-
-✅ **Correct:** Use INDIVIDUAL_KEY or STUDENT_KEY to identify unique persons
-```r
-unique_students <- data %>% distinct(INDIVIDUAL_KEY, .keep_all = TRUE)
-```
-
-**Note:** Validate these identifiers before use - check for duplicates, missing values, and consistency across years.
-
-### Tracking Students Over Time
-
-Multiple records for the same person can show:
-1. Progression through degree programs (Bachelor's → Master's → PhD)
-2. School transfers or program changes
-3. Transition from study to OPT employment
-4. Multiple OPT employers
-
-**Example query:** Find all records for a specific student
-```r
-student_history <- data %>%
-  filter(INDIVIDUAL_KEY == 12345) %>%
-  arrange(PROGRAM_START_DATE, OPT_AUTHORIZATION_START_DATE)
-```
-
-### OPT Employment Analysis
-
-To analyze OPT employment patterns:
-- Filter to `EMPLOYMENT_DESCRIPTION == "opt"`
-- Use `OPT_EMPLOYER_START_DATE` and `OPT_EMPLOYER_END_DATE` for employment periods
-- Use `EMPLOYER_NAME`, `EMPLOYER_CITY`, `EMPLOYER_STATE` for location analysis
-- Use `MAJOR_1_DESCRIPTION` to link to field of study
-
-### Understanding Year Assignment
-
-[TO BE COMPLETED: Clarify how records are assigned to years]
-- Is it based on authorization start date?
-- Program end date?
-- Status change date?
-- This affects how you count students "in" a given year
-
-## Data Quality Notes
-
-### Known Issues
-
-1. **Inconsistent date completeness**: Earlier years (2004-2009) have more missing dates
-2. **Varying column structures**: Column names and availability changed over time; cleaning script standardizes this
-3. **Duplicate records**: Same authorization may appear multiple times if status was updated
-4. **Geographic standardization**: City/state names needed cleaning (handled by script)
-5. **Zero vs blank values**: Some numeric fields use 0.0 to indicate "none", others use blank/NA
-
-### Data Reliability by Year
-
-- **2004-2009**: Less reliable, incomplete records, use with caution
-- **2010-2022**: Most reliable period, consistent data collection
-- **2023**: Most recent year, may be incomplete or preliminary
-
-### FOIA-Redacted Fields
-
-The following fields were **removed or redacted** by ICE before data release:
-- **Date_of_Birth** / **Birth_Date**: Replaced with placeholder values
-- **School_Fund_Type**: Removed or replaced
-- [Add other redacted fields as identified]
-
-These fields are automatically excluded by the cleaning script (`exclude_cols` parameter).
-
-## Data Processing Pipeline
-
-This data dictionary describes the **cleaned** data after running `load_data_parallel.R`. For information on how the data is processed, see [Data Processing Documentation](data_processing.md).
-
-**Processing stages:**
-1. **Raw FOIA data**: Original government files, organized by year/month in subdirectories
-2. **Combined by year**: One CSV per year with all months combined (e.g., `2020_all.csv`)
-3. **Cleaned data**: This data dictionary describes this stage (e.g., `cleaned_2020_all.csv`)
-   - Standardized column names (UPPERCASE)
-   - Parsed and validated dates
-   - Cleaned geographic fields (lowercase, standardized)
-   - Removed duplicates
-   - Excluded redacted/irrelevant columns
 
 ## Questions or Issues?
 
-If you find data quality issues, inconsistencies, or have questions about variable definitions, please open an issue in the repository.
+If you identify new data quality issues or have questions about the data, please reach out to violet@ifp.org.
 
 ## Related Documentation
 

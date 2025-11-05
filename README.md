@@ -1,225 +1,259 @@
-# OPT Observatory GitHub Repository README
+# OPT Observatory
 
-This repository contains code and analysis tools for F-1 student and J-1 research scholar data analysis. The repository keeps **code in GitHub** and **large data in Google Drive** (for macOS users) or local directories (for other platforms).
+Analysis pipeline for F-1 student OPT (Optional Practical Training) participation patterns using SEVIS data.
+
+## 📊 Overview
+
+This repository provides a reproducible analysis pipeline for studying F-1 international student transitions to Optional Practical Training (OPT) employment in the United States. The analysis uses SEVIS (Student and Exchange Visitor Information System) data obtained through FOIA requests.
+
+**Key Features:**
+- DuckDB-based data pipeline (no database server required)
+- Reproducible analysis with exact package versions (renv)
+- Pre-cleaned data ready for analysis
+- Geographic enrichment (Labor Market Areas, counties)
+- Field of study classification (NSF subject fields, STEM designation)
 
 ## 🚀 Quick Start
 
-### Prerequisites
-
-Before setting up the repository, ensure you have the following installed:
-
-- **Git** - for cloning the repository
-- **Python 3.12+** - for data analysis scripts
-- **R 4.5.1+** - for statistical analysis
-- **direnv** - for automatic environment management
-- **Node.js 18+** (optional) - for frontend components
-
-### Installation Instructions
-
-#### macOS Users (Recommended)
-
-1. **Clone the repository**:
-   ```bash
-   git clone <repository-url>
-   cd stem-opt
-   ```
-
-2. **Run the unified setup script**:
-   ```bash
-   ./setup.sh
-   ```
-   
-   This will:
-   - Set up Python and R environments
-   - Install all dependencies
-   - Configure data access via Google Drive symlinks (GUI dialog will appear)
-   - Set up direnv for automatic environment activation
-   
-   **When the data setup dialog appears:**
-   - Pick `sevis_dta` at `Shared drives/DataDrive/repository_data/sevis_dta`
-   - Pick `sevis_data` at `Shared drives/DataDrive/raw/sevis_data`
-
-3. **Alternative: Use the original macOS setup**:
-   - Double-click `scripts/setup_mac.command`
-   - In the dialog:
-     - Pick `sevis_dta` at `Shared drives/DataDrive/repository_data/sevis_dta`
-     - Pick `sevis_data` at `Shared drives/DataDrive/raw/sevis_data`
-   - Done. In your editor (Cursor/VS Code), you'll now see files under `dta/` and `data/`.
-
-#### Windows/Linux Users
-
-1. **Clone the repository**:
-   ```bash
-   git clone <repository-url>
-   cd stem-opt
-   ```
-
-2. **Run the unified setup script**:
-   ```bash
-   ./setup.sh
-   ```
-
-3. **Manually set up data access**:
-   - Replace the placeholder `data/` folder with your actual data directory
-   - Replace the placeholder `dta/` folder with your actual dta directory
-   - See the README files in these folders for more information
-
-### Setup Options
-
-The setup script supports several options:
+### 1. Clone Repository
 
 ```bash
-./setup.sh [options]
-
-Options:
-  --no-python      Skip Python environment setup
-  --no-r           Skip R environment setup
-  --no-data        Skip data setup
-  --recreate-venv  Delete and recreate Python virtual environment
-  --force          Skip confirmation prompts
-  --help           Show help message
+git clone https://github.com/yourusername/OPT-observatory.git
+cd OPT-observatory
 ```
 
----
+### 2. Download Data
+
+Download the data bundle from Zenodo:
+- **DOI:** [Will be added after upload]
+- **Size:** ~50 GB (compressed)
+- **Contents:**
+  - Raw SEVIS F-1 data (2004-2023)
+  - Pre-cleaned SEVIS data (2004-2023)
+  - Supporting data files (HUD, BLS LAUS, DHS, NSF)
+
+Extract the data:
+```bash
+# Download data.zip from Zenodo link above
+unzip data.zip
+# This creates the data/ folder with raw/, cleaned/, and supporting/ subdirectories
+```
+
+### 3. Install R Dependencies
+
+```bash
+./setup.sh
+```
+
+This installs all required R packages using renv (reproducible package management).
+
+### 4. Run Analysis Pipeline
+
+Open and run the notebooks in order:
+
+```bash
+jupyter notebook
+```
+
+1. **`notebooks/create_enriched_master.ipynb`**
+   - Reads cleaned SEVIS data
+   - Adds supplemental columns (STEM status, NSF fields, geographic mappings)
+   - Outputs enriched Parquet file
+
+2. **`notebooks/create_staging_tables.ipynb`**
+   - Creates analysis-ready staging tables
+   - Outputs Parquet and CSV files
+
+3. **Analysis notebooks** (e.g., `grad_cohort_opt.ipynb`, `geographic_retention.ipynb`)
+   - Run specific analyses on staging tables
 
 ## 📁 Repository Structure
 
 ```
-stem-opt/
-├── setup.sh                    # Unified setup script
-├── requirements.txt            # Python dependencies
-├── renv.lock                   # R package lockfile
-├── .envrc                      # direnv configuration
-├── data/                       # Data directory (symlinked on macOS)
-├── dta/                        # Analysis output directory (symlinked on macOS)
-├── scripts/                    # Analysis scripts
-│   ├── production/             # Current F-1/J-1 analysis scripts
-│   └── setup_mac.command       # macOS-specific data setup
-├── notebooks/                  # Jupyter notebooks for analysis
-├── website_testing/            # Web application components
-└── ai-moonshots-master/        # Landing page project
+OPT-observatory/
+├── README.md                     # This file
+├── setup.sh                      # Install R dependencies
+├── renv.lock                     # R package versions (reproducibility)
+├── .gitignore                    # Excludes large data files
+├── data/                         # Downloaded from Zenodo (not in Git)
+│   ├── raw/                      # Raw SEVIS FOIA files (20 CSV files, ~25 GB)
+│   ├── cleaned/                  # Pre-cleaned files (20 CSV files, ~24 GB)
+│   ├── supporting/               # Supporting datasets (~500 MB)
+│   │   ├── dhs_stem_cip_code_list_July2024.csv
+│   │   ├── cip_code_to_nsf_subject_field_mapping.csv
+│   │   ├── working_pop_by_county_fips_2004-2023.csv
+│   │   ├── HUD_zip_code_to_county_crosswalk_2010-2024.csv
+│   │   └── zip_county_lma_quarterly.csv
+│   └── staging/                  # Generated by pipeline
+├── notebooks/                    # Analysis notebooks
+│   ├── create_enriched_master.ipynb
+│   ├── create_staging_tables.ipynb
+│   └── ...                       # Analysis notebooks
+└── scripts/
+    └── load_data_parallel.R      # Data cleaning script (for transparency)
 ```
 
-## 🧠 What the Setup Does
-
-### Environment Management
-- **Python**: Creates a virtual environment (`.venv/`) and installs dependencies from `requirements.txt`
-- **R**: Sets up renv environment and restores packages from `renv.lock`
-- **direnv**: Configures automatic environment activation when entering the directory
-
-### Data Access (macOS)
-- Creates **symlinks**: `dta/` and `data/` point to your Google Drive folders
-- **Protects** placeholder files with `git update-index --skip-worktree` so local replacements don't show as deletions
-- Installs a **pre-commit hook** that blocks commits touching `data/` or `dta/`
-- Backs up any existing directories before replacing them
-
-### Data Access (Windows/Linux)
-- Provides instructions for manually replacing placeholder folders with actual data directories
-- Maintains the same folder structure for code compatibility
-
-## 🔧 System Requirements
+## 🔧 Prerequisites
 
 ### Required Software
+
+- **R 4.5+** - Statistical computing
+  - macOS: `brew install r`
+  - Linux: `sudo apt-get install r-base`
+  - Windows: [Download from CRAN](https://cran.r-project.org/)
+
+- **Jupyter** - For running notebooks
+  ```bash
+  pip install jupyter
+  ```
+
 - **Git** - Version control
-- **Python 3.12+** - Data analysis and processing
-- **R 4.5.1+** - Statistical analysis
-- **direnv** - Environment management
-- **Homebrew** (macOS) - For installing system dependencies for R packages
+  - macOS: Pre-installed or `brew install git`
+  - Linux: `sudo apt-get install git`
+  - Windows: [Download from git-scm.com](https://git-scm.com/)
 
-### Python Dependencies
-- pandas, numpy, pyarrow - Data manipulation
-- google-cloud-bigquery - BigQuery integration
-- fastapi, uvicorn - Web API framework
-- ipykernel, jupyter - Notebook support
-- polars - High-performance data processing
+### R Packages
 
-### R Dependencies
-- tidyverse - Data manipulation and visualization
-- lubridate - Date/time handling
-- data.table - High-performance data processing
-- fs, readr, purrr - File system and data I/O
-- parallel, future - Parallel processing
+All R packages are managed by **renv** and installed automatically by `setup.sh`:
+- duckdb - SQL database engine
+- tidyverse - Data manipulation
+- data.table - Fast data processing
+- lubridate - Date handling
+- fs - File system operations
+- future/future.apply - Parallel processing
 
-## 📊 Analysis Workflows
+## 📖 Data
 
-### F-1/J-1 Analysis (Production)
-The main analysis scripts are located in `scripts/production/`:
+### SEVIS F-1 Data
 
-```bash
-cd scripts/production/
-python run_multi_state_analysis.py
+FOIA request to U.S. Department of Homeland Security / Student and Exchange Visitor Program (SEVP)
+- **Coverage:** 2004-2023
+- **Records:** ~XX million F-1 student records
+- **Includes:** Demographics, program information, OPT employment details
+
+### Supporting Data
+
+1. **DHS STEM CIP Code List** (July 2024)
+   - Official list of STEM-designated degree programs
+   - Source: Department of Homeland Security
+
+2. **CIP to NSF Field Mapping**
+   - Maps CIP codes to NSF broad/major/fine subject fields
+   - Generated from NSF 7-field taxonomy
+
+3. **HUD ZIP-County Crosswalk** (2010-2024)
+   - Quarterly ZIP code to county FIPS mappings
+   - Source: U.S. Department of Housing and Urban Development
+
+4. **BLS LAUS Working Population** (2004-2023)
+   - Annual civilian working population by county
+   - Labor Market Area (LMA) designations
+   - Source: Bureau of Labor Statistics Local Area Unemployment Statistics
+
+5. **ZIP-LMA Mapping** (Quarterly, 2010-2024)
+   - Joins HUD crosswalk with LMA data
+   - Time-aware mapping for accurate geographic attribution
+
+## 🔬 Data Pipeline
+
+### Stage 1: Enrichment (`create_enriched_master.ipynb`)
+
+**Input:** Cleaned SEVIS CSV files (`data/cleaned/*.csv`)
+
+**Processing:**
+1. Create unique SEVIS_ID (Year + Individual_Key)
+2. Add IS_STEM flag (matches DHS STEM CIP list)
+3. Add NSF_SUBJ_FIELD_BROAD (maps CIP → NSF taxonomy)
+4. Add geographic columns:
+   - CAMPUS_LMA / EMPLOYER_LMA (Labor Market Areas)
+   - CAMPUS_COUNTY / EMPLOYER_COUNTY
+5. Add working population columns for normalization
+
+**Output:** `data/sevis_f1_enriched_master.parquet` (~2-5 GB)
+
+**Runtime:** 10-30 minutes
+
+### Stage 2: Staging Tables (`create_staging_tables.ipynb`)
+
+**Input:** Enriched master Parquet file
+
+**Processing:**
+- Creates analysis-specific subsets
+- Optimizes for query performance
+- Exports as Parquet and CSV
+
+**Output:** `data/staging/*.parquet` and `*.csv`
+
+**Runtime:** 5-15 minutes
+
+### Stage 3: Analysis
+
+Run analysis notebooks to generate insights, visualizations, and statistics.
+
+## 🔄 Reproducing the Data Cleaning (Optional)
+
+The data bundle includes both **raw** and **cleaned** files for transparency. If you want to verify the cleaning process:
+
+1. Review the cleaning script: `scripts/load_data_parallel.R`
+2. Run it on the raw files:
+   ```bash
+   Rscript scripts/load_data_parallel.R
+   ```
+3. Compare output to provided cleaned files
+
+The cleaning process:
+- Standardizes column names
+- Parses and validates dates
+- Handles missing values
+- Removes duplicate records
+- Filters to F-1 visa records
+
+## 📝 Citation
+
+If you use this data or code, please cite:
+
+```
+[Author names]. (2025). OPT Observatory: Analysis Pipeline for F-1 OPT Participation.
+Zenodo. https://doi.org/10.5281/zenodo.XXXXX
 ```
 
-This runs comprehensive F-1 student and J-1 research scholar analysis for all configured states/universities.
-
-### R Analysis
-For R-based analysis, see the `notebooks/` directory:
-
-```bash
-# Start R and load the environment
-R
-> renv::activate()
-> library(tidyverse)  # Now you can use all packages
+And cite the original SEVIS data source:
+```
+U.S. Department of Homeland Security, Student and Exchange Visitor Program (SEVP).
+SEVIS F-1 Student Data (2004-2023). Obtained via FOIA request [case number].
 ```
 
-Or use Rscript directly:
-```bash
-Rscript -e "renv::activate(); library(tidyverse); # your R code here"
-```
+## 📄 License
 
-### Web Application
-The `website_testing/` directory contains a web application for data visualization:
+[Specify your license - e.g., MIT, CC BY 4.0, etc.]
 
-```bash
-cd website_testing/
-# Backend (Python)
-uvicorn backend.app:app --reload
+## 🤝 Contributing
 
-# Frontend (Node.js)
-cd frontend_new/
-npm install
-npm run dev
-```
+Contributions welcome! Please:
+1. Fork the repository
+2. Create a feature branch
+3. Submit a pull request
 
-## ⚠️ Troubleshooting
+For questions or issues:
+- **GitHub Issues:** [Link to issues]
+- **Email:** [Your contact email]
 
-### Common Issues
+## ⚠️ Notes
 
-1. **"direnv not found"**
-   - Install direnv: https://direnv.net/docs/installation.html
-   - Add hook to your shell: `eval "$(direnv hook zsh)"` (or bash)
+- **Data Size:** The full dataset is ~50 GB. Ensure you have sufficient disk space.
+- **Runtime:** Initial pipeline run takes 15-45 minutes depending on your machine.
+- **Memory:** Minimum 8 GB RAM recommended; 16 GB+ preferred for large analyses.
+- **Privacy:** The data has been de-identified. No individual-level personally identifiable information (PII) is included.
 
-2. **"Python not found"**
-   - Install Python 3.12+: https://python.org/downloads/
-   - On Windows, use `py` command instead of `python3`
+## 🙏 Acknowledgments
 
-3. **"R not found"**
-   - Install R 4.5.1+: https://cran.r-project.org/
-   - Ensure Rscript is in your PATH
+Data sources:
+- U.S. Department of Homeland Security / SEVP
+- U.S. Department of Housing and Urban Development
+- Bureau of Labor Statistics
+- National Science Foundation
 
-4. **R package installation failures**
-   - On macOS: Install Homebrew from https://brew.sh/
-   - Run: `brew install harfbuzz fribidi freetype pkg-config`
-   - On Linux: `sudo apt-get install libharfbuzz-dev libfribidi-dev libfreetype6-dev pkg-config`
-   - On Windows: Install Rtools from https://cran.r-project.org/bin/windows/Rtools/
-
-5. **Data access issues (macOS)**
-   - Ensure Google Drive for Desktop is installed and signed in
-   - Check that you have access to the shared drive
-   - Run `scripts/setup_mac.command` manually if needed
-
-6. **Environment not activating**
-   - Restart your shell after adding direnv hook
-   - Run `direnv allow .` in the repository directory
-
-### Getting Help
-
-- Check the `scripts/production/README.md` for detailed analysis workflow documentation
-- Review the `notebooks/` directory for example analyses
-- See individual script documentation in the `scripts/` directory
-
-## 🔒 Security Notes
-
-- The repository uses pre-commit hooks to prevent accidental commits of large data files
-- Sensitive data columns (DOB, etc.) are automatically excluded from processing
-- Google Drive access is required only for macOS users with shared drive access
+Tools:
+- [DuckDB](https://duckdb.org/) - In-process SQL database
+- [renv](https://rstudio.github.io/renv/) - R package management
+- [Tidyverse](https://www.tidyverse.org/) - R data science packages
