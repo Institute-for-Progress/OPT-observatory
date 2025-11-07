@@ -684,9 +684,10 @@ process_yearly_data_parallel <- function(root_dir, pattern = ".csv", exclude_col
 }
 
 # Optimized cleaning function (PRESERVING ALL FUNCTIONALITY)
-clean_yearly_data_optimized <- function(input_dir, output_dir, date_cols, 
-                                       exclude_cols = DEFAULT_EXCLUDE_COLS, 
+clean_yearly_data_optimized <- function(input_dir, output_dir, date_cols,
+                                       exclude_cols = DEFAULT_EXCLUDE_COLS,
                                        future_cutoff = NULL,
+                                       historic_cutoff = NULL,
                                        year_range = NULL,
                                        keep_cpt = FALSE) {
   cat("=== Starting clean_yearly_data_optimized ===\n")
@@ -694,9 +695,13 @@ clean_yearly_data_optimized <- function(input_dir, output_dir, date_cols,
   cat("output_dir:", output_dir, "\n")
   cat("keep_cpt:", keep_cpt, "\n")
   cat("year_range:", if(is.null(year_range)) "NULL" else paste(year_range, collapse=", "), "\n")
-  
+
   if (is.null(future_cutoff)) {
     future_cutoff <- "2024-01-01"
+  }
+
+  if (is.null(historic_cutoff)) {
+    historic_cutoff <- "1980-01-01"
   }
   
   if (is.null(output_dir)) {
@@ -768,6 +773,7 @@ clean_yearly_data_optimized <- function(input_dir, output_dir, date_cols,
       duplicates_removed = 0,
       cpt_rows_removed = 0,
       future_dates_nullified = 0,
+      historic_dates_nullified = 0,
       date_parsing_errors = 0
     )
     
@@ -796,13 +802,19 @@ clean_yearly_data_optimized <- function(input_dir, output_dir, date_cols,
         
         # Use enhanced date parsing
         temp_dates <- parse_dates_safely(original_dates, col, verbose = TRUE)
-        
+
         if (col == "First_Entry_Date") {
+          # Nullify future dates
           future_mask <- temp_dates > as.Date(future_cutoff)
           temp_dates[future_mask] <- NA
           stats$future_dates_nullified <- sum(future_mask, na.rm = TRUE)
+
+          # Nullify historic dates
+          historic_mask <- temp_dates < as.Date(historic_cutoff)
+          temp_dates[historic_mask] <- NA
+          stats$historic_dates_nullified <- sum(historic_mask, na.rm = TRUE)
         }
-        
+
         df[[col]] <- temp_dates
       }
     }
@@ -851,7 +863,8 @@ clean_yearly_data_optimized <- function(input_dir, output_dir, date_cols,
       message("CPT rows kept (keep_cpt = TRUE)")
     }
     message(sprintf("Future dates nullified: %d", stats$future_dates_nullified))
-    
+    message(sprintf("Historic dates nullified: %d", stats$historic_dates_nullified))
+
     return(list(year = year, stats = stats, output_path = output_path))
   }, future.seed = TRUE)
   
@@ -865,7 +878,8 @@ combine_and_clean_data_optimized <- function(root_dir, raw_output_dir, clean_out
                                             exclude_cols = DEFAULT_EXCLUDE_COLS,
                                             verbose = TRUE,
                                             year_range = NULL,
-                                            keep_cpt = TRUE) {
+                                            keep_cpt = TRUE,
+                                            historic_cutoff = NULL) {
   
   cat("=== Starting combine_and_clean_data_optimized function ===\n")
   cat("Parameters: root_dir =", root_dir, "\n")
@@ -914,7 +928,8 @@ combine_and_clean_data_optimized <- function(root_dir, raw_output_dir, clean_out
       date_cols = date_cols,
       exclude_cols = exclude_cols,
       keep_cpt = keep_cpt,
-      year_range = year_range
+      year_range = year_range,
+      historic_cutoff = historic_cutoff
     )
   }
   
@@ -974,29 +989,20 @@ check_directory_headers <- function(dir_path, exclude_cols = DEFAULT_EXCLUDE_COL
   return(TRUE)
 }
 
-# Example usage with new local data structure
-# NOTE: This script is provided for transparency and verification purposes.
-# The data bundle already includes pre-cleaned files in ../data/cleaned/
-# You only need to run this if you want to verify the cleaning process.
-#
-# To use this script:
-# 1. You'll need the raw SEVIS FOIA files (not included in data bundle)
-# 2. Organize them in subdirectories by year: root_dir/2004/, root_dir/2005/, etc.
-# 3. Update root_dir below to point to that location
-# 4. The script will output to ../data/raw/ and ../data/cleaned/
+# Example usage - configured for OPT Observatory repository
+result <- combine_and_clean_data_optimized(
+  root_dir = "/Users/Violet/Library/CloudStorage/GoogleDrive-violet@ifp.org/Shared drives/DataDrive/raw/sevis_data/F-1",
+  raw_output_dir = "/Users/violet/Desktop/repos/OPT-observatory/data/raw",
+  clean_output_dir = "/Users/violet/Desktop/repos/OPT-observatory/data/cleaned",
+  write_raw_files = TRUE,
+  write_clean_files = TRUE,
+  exclude_cols = DEFAULT_EXCLUDE_COLS,
+  verbose = TRUE,
+  year_range = as.character(2004:2023),
+  keep_cpt = TRUE,
+  historic_cutoff = "1980-01-01"  # Nullify dates before 1980
+)
 
-# UNCOMMENT AND UPDATE THESE PATHS TO RUN THE CLEANING SCRIPT:
-# result <- combine_and_clean_data_optimized(
-#   root_dir = "path/to/raw/FOIA/files",  # Directory with year subdirectories
-#   raw_output_dir = "../data/raw",        # Combined raw files (one per year)
-#   clean_output_dir = "../data/cleaned",  # Cleaned files (ready for analysis)
-#   write_raw_files = TRUE,
-#   write_clean_files = TRUE,
-#   keep_cpt = TRUE,
-#   verbose = TRUE,
-#   year_range = as.character(2004:2023)
-# )
-
-cat("\n=== load_data_parallel.R loaded successfully ===\n")
-cat("To run the cleaning process, uncomment and update the paths above.\n")
-cat("For most users, pre-cleaned files are already available in ../data/cleaned/\n") 
+cat("\n=== Cleaning complete ===\n")
+cat("Raw files written to:", result$raw_output_dir, "\n")
+cat("Cleaned files written to:", result$clean_output_dir, "\n") 

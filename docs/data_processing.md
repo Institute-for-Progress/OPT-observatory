@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `load_data_parallel.R` script transforms large-scale SEVIS F-1 visa microdata from raw CSV dumps (~25 GB) into cleaned, analysis-ready files. The script is designed to handle government microdata efficiently using parallel processing and sophisticated data validation.
+The `load_data_parallel.R` script cleans and transforms the raw excerpts from the Student and Exchange Visitor Information System (SEVIS) provided in the ICE FOIA Library under #43657. This document details each step of the cleaning process for F-1 SEVIS microdata from this release, please contact the authors of the repository with any questions or to raise suspected errors.
 
 ## Table of Contents
 
@@ -37,15 +37,20 @@ The `load_data_parallel.R` script transforms large-scale SEVIS F-1 visa microdat
 
 ## Background: SEVIS F-1 Data
 
-**SEVIS (Student and Exchange Visitor Information System)** tracks international students on F-1 visas in the United States. This data, obtained via FOIA from ICE, covers 2004-2023 (~25GB) with record-level data where each row represents an authorization period, not a unique person.
+**SEVIS (Student and Exchange Visitor Information System)** tracks international students and exchange visitors in F, M, and J US visa categories. The data cleaned here includes annually grouped records of international students (F-1 holders).
 
-⚠️ **Data Quality Note**: Only data from 2010-2022 is considered reliable for analysis.
+**Data Quality Note**: Upon analysis we found several major issues with the data release:
+1. FY2023 data is likely incomplete. The file is less than half the size of other files, and produced implausibly low values that are out of step with data reported by DHS. We are unaware of an explanation for the missing data, and strongly suspect this truncation is in error.
+2. FY2008 and FY2009 files are identical. This is implausible, and nearly certainly in error. 
+3. Counts of active international students from 2004-2023 demonstrate a severe discontinuity between 2008 and 2009. This is unreflected in other reporting on SEVIS data, and resolves when data from the period from FY2005-2009 is analyzed as if it were actually the data for FY2004-2008. We suspect that the true FY2009 is absent from this release, and that the data labeled as both FY2008 and FY2009 is actually from FY2008, and each year preceeding fiscal year is mislabeled as one fiscal year higher than is truly the case. 
 
-📖 **For detailed information** about data structure, column definitions, and how records are organized, see the **[Data Dictionary](data_dictionary.md)**.
+Due both to the errors above, and generally poor data availability for values relevant to the OPT Observatory (e.g. employer locations), we consider only data from 2010-2022 as reliable.
+
+**For detailed information** about data structure, column definitions, and how records are organized, see the **[Data Dictionary](data_dictionary.md)**.
 
 ## Main Function: `combine_and_clean_data_optimized()`
 
-This is the primary entry point for data processing. The function operates in **two distinct modes** controlled by flags, which determine what processing steps are executed.
+This is the primary entry point for data processing. The function operates in two distinct modes controlled by flags.
 
 ### Function Signature
 
@@ -58,7 +63,7 @@ combine_and_clean_data_optimized(
   write_clean_files = FALSE, # Flag: clean and process files?
   exclude_cols = DEFAULT_EXCLUDE_COLS,  # Columns to exclude (irrelevant/redacted placeholder data)
   verbose = TRUE,         # Print detailed progress information?
-  year_range = NULL,      # Filter to specific years (e.g., 2010:2020)
+  year_range = NULL,      # Filter to specific years (e.g., as.character(2010:2020))
   keep_cpt = TRUE         # Keep CPT (Curricular Practical Training) records?
 )
 ```
@@ -71,13 +76,16 @@ combine_and_clean_data_optimized(
 - Scans `root_dir` for year-based subdirectories
 - Combines multiple CSV files within each year into a single file per year
 - Validates header consistency across files
-- Removes excluded columns (irrelevant fields and FOIA-redacted placeholder data)
+- Removes excluded columns (irrelevant* fields and FOIA-redacted placeholder data)
 - Handles duplicate columns intelligently
 - Writes output to `raw_output_dir` as `YYYY_all.csv`
+
+* A different set of fields may be relevant to your analysis. Consider changing exclude_cols parameter to process less data when cleaning, and create smaller cleaned data files which can be parsed more quickly.
 
 **When to use:**
 - Initial data ingestion from raw government dumps
 - When source files have been updated and you need to rebuild combined files
+- To create your own "cleaned" data files, with different columns or years available
 
 **Requirements:**
 - `root_dir` must contain subdirectories (typically named by year: 2010/, 2011/, etc.)
@@ -152,8 +160,9 @@ Run both modes sequentially to go directly from raw source files to cleaned outp
 
 ### `year_range`
 - **Type**: Character vector or NULL
-- **Example**: `as.character(2010:2022)` or `c("2015", "2016", "2017")`
+- **Example**: `as.character(2010:2022)` or `as.character(c(2015, 2016, 2017))`
 - **Purpose**: Process only specific years
+- **Important**: Always wrap years in `as.character()` - the function expects character strings, not integers
 - **Useful for**: Testing, incremental updates, targeted analyses
 - **Recommended range**: `as.character(2010:2022)` for reliable data (see Data Quality Note above)
 
@@ -161,7 +170,7 @@ Run both modes sequentially to go directly from raw source files to cleaned outp
 - **Type**: Boolean
 - **Default**: TRUE
 - **Purpose**: Include or exclude CPT (Curricular Practical Training) records
-- **Background**: CPT is work authorization during studies; OPT is post-graduation. Set to FALSE if you want to analyze only post-graduation employment (OPT).
+- **Background**: CPT is work authorization that's typically part of a student's curriculum (usually during studies), while OPT is work authorization after graduation. Set to FALSE if you want to analyze only post-graduation employment (OPT).
 
 ### `verbose`
 - **Type**: Boolean
@@ -257,8 +266,6 @@ File: 2015_Dec.csv (has 45 columns)
 5. **For state columns specifically**: Convert abbreviations to full names
    - Example: `CA` → `california`, `NY` → `new york`
 
-**Why lowercase?** Ensures consistent matching and grouping in analyses (e.g., "New York" vs "new york" vs "NEW YORK" all become "new york").
-
 ### 6. Parallel Processing
 
 **Configuration (line 34 in load_data_parallel.R):**
@@ -279,7 +286,7 @@ plan(multisession, workers = min(4, parallel::detectCores() - 1))
 
 **Hardware-specific considerations:**
 
-⚠️ **You may need to adjust the worker count:** The default cap of 4 workers is optimized for 16GB RAM. Edit line 34 in `scripts/load_data_parallel.R` and change `min(4, ...)` to:
+You may need to adjust the worker count: The default cap of 4 workers is optimized for 16GB RAM. Edit line 34 in `scripts/load_data_parallel.R` and change `min(4, ...)` to:
 - **More powerful machines** (64GB+ RAM): increase to 6-8 workers
 - **Less powerful machines** (8GB RAM): decrease to 2 workers
 - **Memory errors**: reduce workers or limit `year_range` to fewer years
@@ -287,13 +294,15 @@ plan(multisession, workers = min(4, parallel::detectCores() - 1))
 ### 7. CPT Filtering (`keep_cpt` parameter)
 
 **Background:**
-- **CPT (Curricular Practical Training)**: Work authorization during studies
+- **CPT (Curricular Practical Training)**: Work authorization that's typically part of a student's curriculum, usually during their studies
 - **OPT (Optional Practical Training)**: Work authorization after graduation
 
 **When `keep_cpt = TRUE` (default):**
 - Retains all employment records including CPT
 - Necessary for comprehensive student employment analyses
 - Required for studying work patterns during studies
+
+* You may want to change this flag to `FALSE` if you need to distinguish between OPT and CPT records. You can also change the ex
 
 **When `keep_cpt = FALSE`:**
 - Removes all records where `Employment_Description == "CPT"`
@@ -313,15 +322,16 @@ result <- combine_and_clean_data_optimized(
   clean_output_dir = "/path/to/output/clean",
   write_raw_files = TRUE,
   write_clean_files = TRUE,
+  exclude_cols = DEFAULT_EXCLUDE_COLS,
   verbose = TRUE,
-  year_range = as.character(2010:2022)  # Recommended reliable years
-  # keep_cpt defaults to TRUE, so both CPT and OPT records are included
+  year_range = as.character(2010:2022),  # Use as.character() for years
+  keep_cpt = TRUE  # Default: includes both CPT and OPT records
 )
 ```
 
-### Example 2: Full Pipeline (Raw → Clean) - OPT Only
+### Example 2: Full Pipeline - OPT Only
 
-Process reliable years (2010-2022), explicitly excluding CPT records for OPT-only analysis:
+Process reliable years (2010-2022), excluding CPT records for OPT-only analysis:
 
 ```r
 result <- combine_and_clean_data_optimized(
@@ -330,46 +340,52 @@ result <- combine_and_clean_data_optimized(
   clean_output_dir = "/path/to/output/clean_opt_only",
   write_raw_files = TRUE,
   write_clean_files = TRUE,
-  keep_cpt = FALSE,  # Override default: exclude CPT to focus on post-graduation employment
+  exclude_cols = DEFAULT_EXCLUDE_COLS,
   verbose = TRUE,
-  year_range = as.character(2010:2022)  # Recommended reliable years
+  year_range = as.character(2010:2022),  # Use as.character() for years
+  keep_cpt = FALSE  # Exclude CPT to focus on post-graduation employment
 )
 ```
 
 ### Example 3: Only Combine Raw Files
 
-Useful when you just need to consolidate source files:
+Combine source files without cleaning (useful for initial consolidation):
 
 ```r
 result <- combine_and_clean_data_optimized(
   root_dir = "/path/to/sevis/raw_data",
   raw_output_dir = "/path/to/output/raw",
-  clean_output_dir = NULL,  # Not needed
+  clean_output_dir = NULL,  # Not needed since we're not cleaning
   write_raw_files = TRUE,
   write_clean_files = FALSE,
-  year_range = as.character(2020:2022)  # Just recent reliable years
+  exclude_cols = DEFAULT_EXCLUDE_COLS,
+  verbose = TRUE,
+  year_range = as.character(2020:2022),  # Use as.character() for years
+  keep_cpt = TRUE  # Note: keep_cpt only matters when write_clean_files = TRUE
 )
 ```
 
 ### Example 4: Only Clean Existing Raw Files
 
-Useful when re-running cleaning with different parameters:
+Clean previously combined raw files (useful when re-running cleaning with different parameters):
 
 ```r
 result <- combine_and_clean_data_optimized(
-  root_dir = NULL,  # Not needed
+  root_dir = NULL,  # Not needed since we're not combining
   raw_output_dir = "/path/to/output/raw",  # Input for cleaning
   clean_output_dir = "/path/to/output/clean_with_cpt",
   write_raw_files = FALSE,
   write_clean_files = TRUE,
-  # keep_cpt = TRUE by default, so CPT records will be included
-  year_range = as.character(2010:2022)
+  exclude_cols = DEFAULT_EXCLUDE_COLS,
+  verbose = TRUE,
+  year_range = as.character(2010:2022),  # Use as.character() for years
+  keep_cpt = TRUE  # Default: includes CPT records in cleaned output
 )
 ```
 
 ### Example 5: Testing with Single Year
 
-Test the pipeline on just one year (OPT-only):
+Test the pipeline on just one year:
 
 ```r
 result <- combine_and_clean_data_optimized(
@@ -378,9 +394,10 @@ result <- combine_and_clean_data_optimized(
   clean_output_dir = "/path/to/output/test_clean",
   write_raw_files = TRUE,
   write_clean_files = TRUE,
-  keep_cpt = FALSE,  # Exclude CPT for testing
+  exclude_cols = DEFAULT_EXCLUDE_COLS,
   verbose = TRUE,
-  year_range = c("2020")  # Single year
+  year_range = as.character(2020),  # Single year - still use as.character()
+  keep_cpt = TRUE  # Default: includes both CPT and OPT records
 )
 ```
 
@@ -456,7 +473,7 @@ This script was developed on **macOS (M3 Mac with 16GB RAM)** but should work on
 
 **3. File Paths**
 - The script uses the `fs` package which handles cross-platform paths automatically
-- ⚠️ **Important**: The example code at the bottom of the script (lines 976-985) contains Mac-specific paths
+- **Important**: The example code at the bottom of the script (lines 976-985) contains Mac-specific paths
 - **Windows users**: Replace with Windows paths using forward slashes or escaped backslashes:
   ```r
   # Option 1: Forward slashes (recommended)
@@ -500,10 +517,10 @@ This script was developed on **macOS (M3 Mac with 16GB RAM)** but should work on
 
 ### General Recommendations for All Platforms
 
-1. **Test first**: Run the script on a single year (`year_range = c("2020")`) before processing the full dataset
+1. **Test first**: Run the script on a single year (`year_range = as.character(2020)`) before processing the full dataset
 2. **Monitor resources**: Watch memory usage during the first run to ensure your system can handle the workload
 3. **Adjust workers**: Modify line 34 based on your system's performance
-4. **Comment out example code**: The example at lines 976-985 will run automatically when you source the script. Comment it out or modify paths before running:
+4. **Disable example code first**: Lines 976-985 contain example function calls that will execute immediately when you run the script. Comment them out or update the paths before running, otherwise the script will try to process data using the example paths:
    ```r
    # result <- combine_and_clean_data_optimized(
    #   root_dir = "YOUR_PATH_HERE",

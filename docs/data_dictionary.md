@@ -88,7 +88,7 @@ We act on the **assumption that:** for any given year's file, **if a student has
 
 ## Column Definitions
 
-The following is our interpretation of the meaning of each variable in the data.
+This data is provided by ICE without documentation. The following gives our best interpretation of the meaning of each variable in the cleaned data.
 
 ### Table Column Meanings
 

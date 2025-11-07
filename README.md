@@ -39,21 +39,29 @@ unzip data.zip
 # This creates the data/ folder with raw/, cleaned/, and supporting/ subdirectories
 ```
 
-### 3. Install R Dependencies
+### 3. Install Dependencies (Python + R)
 
 ```bash
 ./setup.sh
 ```
 
-This installs all required R packages using renv (reproducible package management).
+This script:
+- Creates a Python virtual environment (`venv/`)
+- Installs Python packages (jupyter, ipython-sql, duckdb)
+- Installs R packages using renv (reproducible package management)
 
 ### 4. Run Analysis Pipeline
 
-Open and run the notebooks in order:
+Activate the Python environment and start Jupyter:
 
 ```bash
+source venv/bin/activate
 jupyter notebook
 ```
+
+**Important:** When you open a notebook, make sure to select the **"Python 3 (OPT Observatory)"** kernel from the kernel menu (Kernel → Change Kernel). This ensures the notebook uses the packages installed in your venv.
+
+Run the notebooks in order:
 
 1. **`notebooks/create_enriched_master.ipynb`**
    - Reads cleaned SEVIS data
@@ -97,20 +105,27 @@ OPT-observatory/
 
 ### Required Software
 
-- **R 4.5+** - Statistical computing
+- **Python 3.8+** - For running Jupyter notebooks and SQL queries
+  - macOS: `brew install python3`
+  - Linux: `sudo apt-get install python3 python3-venv python3-pip`
+  - Windows: [Download from python.org](https://www.python.org/downloads/)
+
+- **R 4.5+** - For data cleaning scripts (optional for most users)
   - macOS: `brew install r`
   - Linux: `sudo apt-get install r-base`
   - Windows: [Download from CRAN](https://cran.r-project.org/)
-
-- **Jupyter** - For running notebooks
-  ```bash
-  pip install jupyter
-  ```
 
 - **Git** - Version control
   - macOS: Pre-installed or `brew install git`
   - Linux: `sudo apt-get install git`
   - Windows: [Download from git-scm.com](https://git-scm.com/)
+
+### Python Packages
+
+All Python packages are installed automatically by `setup.sh` in a virtual environment:
+- jupyter - Notebook interface
+- ipython-sql - SQL magic commands (`%%sql`)
+- duckdb - SQL database engine (works with large CSV files)
 
 ### R Packages
 
@@ -156,11 +171,14 @@ FOIA request to U.S. Department of Homeland Security / Student and Exchange Visi
 
 ## 🔬 Data Pipeline
 
+All notebooks use **Python + DuckDB** with SQL magic commands (`%%sql`) for efficient processing of large CSV files.
+
 ### Stage 1: Enrichment (`create_enriched_master.ipynb`)
 
-**Input:** Cleaned SEVIS CSV files (`data/cleaned/*.csv`)
+**Input:** Cleaned SEVIS CSV files (`data/cleaned/*.csv` - 20 files, ~25GB)
 
 **Processing:**
+DuckDB queries 20 large CSV files directly (without loading into memory) to:
 1. Create unique SEVIS_ID (Year + Individual_Key)
 2. Add IS_STEM flag (matches DHS STEM CIP list)
 3. Add NSF_SUBJ_FIELD_BROAD (maps CIP → NSF taxonomy)
@@ -169,7 +187,7 @@ FOIA request to U.S. Department of Homeland Security / Student and Exchange Visi
    - CAMPUS_COUNTY / EMPLOYER_COUNTY
 5. Add working population columns for normalization
 
-**Output:** `data/sevis_f1_enriched_master.parquet` (~2-5 GB)
+**Output:** `data/sevis_f1_enriched_master.parquet` (~2-5 GB compressed)
 
 **Runtime:** 10-30 minutes
 
