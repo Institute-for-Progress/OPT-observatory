@@ -181,6 +181,97 @@ clean_sevis_columns <- function(df, verbose = FALSE) {
   return(df)
 }
 
+# Function to restore leading zeros to ZIP codes (fix DHS/ICE source data issue)
+# Optimized for large datasets using vectorized operations
+fix_zip_leading_zeros <- function(df, verbose = FALSE) {
+  # States/territories that have ZIP codes starting with 0 (00xxx-09xxx)
+  # These are the regions affected by Excel auto-formatting in source data
+  zero_states <- c(
+    'massachusetts', 'connecticut', 'new hampshire', 'maine',
+    'vermont', 'new jersey', 'puerto rico', 'virgin islands',
+    'american samoa'  # 96xxx but sometimes appears as 00xxx in military addresses
+  )
+
+  zip_columns <- c('Campus_Zip_Code', 'Employer_Zip_Code')
+  state_columns <- c('Campus_State', 'Employer_State')
+
+  if (verbose) {
+    cat("Restoring leading zeros to ZIP codes for Northeast states...\n")
+  }
+
+  # Convert to data.table if not already (for efficient in-place modification)
+  is_dt <- data.table::is.data.table(df)
+  if (!is_dt) {
+    df <- data.table::as.data.table(df)
+  }
+
+  # Process each ZIP/State pair
+  for (i in seq_along(zip_columns)) {
+    zip_col <- zip_columns[i]
+    state_col <- state_columns[i]
+
+    # Check if both columns exist
+    if (zip_col %in% colnames(df) && state_col %in% colnames(df)) {
+
+      # Convert ZIP to character if not already (in-place for data.table)
+      if (!is.character(df[[zip_col]])) {
+        df[, (zip_col) := as.character(get(zip_col))]
+      }
+
+      # Pre-compute lowercase state for efficiency (avoids repeated tolower calls)
+      # Only for rows where state is not NA
+      state_lower <- rep(NA_character_, nrow(df))
+      state_not_na <- !is.na(df[[state_col]])
+      state_lower[state_not_na] <- tolower(trimws(df[[state_col]][state_not_na]))
+
+      # Create vectorized mask for records that need padding
+      # Conditions: ZIP exists, is less than 5 digits, and is in an affected state
+      needs_padding <- !is.na(df[[zip_col]]) &
+                       nchar(df[[zip_col]]) < 5 &
+                       !is.na(state_lower) &
+                       state_lower %in% zero_states
+
+      n_affected <- sum(needs_padding, na.rm = TRUE)
+
+      if (verbose && n_affected > 0) {
+        cat(sprintf("  %s: Found %d truncated ZIPs in affected states\n",
+                    zip_col, n_affected))
+      }
+
+      # Pad with leading zeros using sprintf (faster than str_pad for this use case)
+      if (n_affected > 0) {
+        # Use sprintf with %05s to pad strings with leading zeros
+        df[needs_padding, (zip_col) := sprintf("%05s", get(zip_col))]
+
+        if (verbose) {
+          cat(sprintf("  %s: Restored leading zeros for %d ZIPs\n",
+                      zip_col, n_affected))
+        }
+      }
+    } else {
+      if (verbose) {
+        if (!(zip_col %in% colnames(df))) {
+          cat(sprintf("  Column %s not found, skipping\n", zip_col))
+        }
+        if (!(state_col %in% colnames(df))) {
+          cat(sprintf("  Column %s not found, skipping\n", state_col))
+        }
+      }
+    }
+  }
+
+  if (verbose) {
+    cat("ZIP code leading zero restoration complete\n")
+  }
+
+  # Convert back to data.frame if input was data.frame
+  if (!is_dt) {
+    df <- as.data.frame(df)
+  }
+
+  return(df)
+}
+
 # Enhanced error handling wrapper for file operations (PRESERVED)
 safe_file_operation <- function(operation, file_path, operation_name = "file operation") {
   tryCatch({
@@ -825,11 +916,15 @@ clean_yearly_data_optimized <- function(input_dir, output_dir, date_cols,
     # Clean specific SEVIS columns (PRESERVED)
     cat("Cleaning text data in SEVIS columns...\n")
     df <- clean_sevis_columns(df, verbose = TRUE)
-    
+
     # Convert all remaining character columns to lowercase
     char_cols <- names(df)[sapply(df, is.character)]
     df[, (char_cols) := lapply(.SD, tolower), .SDcols = char_cols]
-    
+
+    # Restore leading zeros to ZIP codes (fixes DHS/ICE source data issue)
+    cat("Restoring leading zeros to ZIP codes...\n")
+    df <- fix_zip_leading_zeros(df, verbose = TRUE)
+
     # Write cleaned data with enhanced error handling (PRESERVED)
     output_path <- fs::path(output_dir, sprintf("cleaned_%s_all.csv", year))
     cat("Writing cleaned data to:", output_path, "\n")
