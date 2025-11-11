@@ -2,7 +2,7 @@
 
 ## Overview
 
-This page describes the structure and content of the data underlying the the Institute for Progress' OPT Observatory. Obtained via a FOIA request from U.S. Immigration and Customs Enforcement (ICE), the data is an excerpt from the Student and Exchange Visitor Information System (SEVIS), accessible in the ICE FOIA Library under #43657, with a release date of October 1st 2024. While the OPT Observatory and the remainder of this document only describe the data on F-1 international students, a small amount of information on J-1 exchange visitors was also included.
+This page describes the structure and content of the data underlying the the Institute for Progress's OPT Observatory. Obtained via a FOIA request from U.S. Immigration and Customs Enforcement (ICE), the data is an excerpt from the Student and Exchange Visitor Information System (SEVIS), accessible in the ICE FOIA Library under #43657, with a release date of October 1st 2024. While the OPT Observatory and the remainder of this document only describe the data on F-1 international students, a small amount of information on J-1 exchange visitors was also included.
 
 ## Data Processing Pipeline
 
