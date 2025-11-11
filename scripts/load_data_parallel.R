@@ -25,6 +25,7 @@ library(data.table)
 library(parallel)
 library(future)
 library(future.apply)
+library(jsonlite)
 
 # ---- logging setup -----------------------------------------------------------
 cat("=== SEVIS F-1 Annual Cleaner (OPTIMIZED) Starting ===\n")
@@ -36,11 +37,29 @@ cat("Available cores:", parallel::detectCores(), "\n")
 plan(multisession, workers = min(4, parallel::detectCores() - 1))
 cat("Using", nbrOfWorkers(), "workers for parallel processing\n")
 
-# The following columns are excluded from all steps of data processing by default
-DEFAULT_EXCLUDE_COLS <- c(
-  "Date_of_Birth", "Birth_Date", "School_Fund_Type", 
-  "Date of Birth", "Birth Date", "School Fund Type" 
-)
+# ---- load-configuration ------------------------------------------------------
+# Load configuration from external JSON file for consistency across projects
+CONFIG_PATH <- "data/supporting/sevis_data_processing_config.json"
+
+if (!file.exists(CONFIG_PATH)) {
+  stop("Configuration file not found: ", CONFIG_PATH)
+}
+
+cat("Loading configuration from:", CONFIG_PATH, "\n")
+CONFIG <- jsonlite::fromJSON(CONFIG_PATH)
+
+# Extract configuration values
+DEFAULT_EXCLUDE_COLS <- CONFIG$exclude_columns
+STATE_ABBREVIATIONS <- unlist(CONFIG$state_abbreviations)
+ZIP_FIX_STATES <- CONFIG$zip_fix_states
+DATE_COLUMNS <- CONFIG$date_columns
+TEXT_CLEANING_COLUMNS <- CONFIG$text_cleaning_columns
+ZIP_COLUMNS <- CONFIG$zip_columns
+STATE_COLUMNS <- CONFIG$state_columns
+FUTURE_CUTOFF <- CONFIG$date_cutoffs$future_cutoff
+HISTORIC_CUTOFF <- CONFIG$date_cutoffs$historic_cutoff
+
+cat("Configuration loaded successfully\n")
 
 # Function to check if a column should be excluded
 should_exclude_column <- function(col_name, exclude_cols) {
@@ -65,27 +84,11 @@ should_exclude_column <- function(col_name, exclude_cols) {
     gsub("'", "", x = _) |>
     gsub("\\.", "_", x = _)
   
-  return(col_name %in% exclude_cols || 
+  return(col_name %in% exclude_cols ||
          base_name %in% exclude_cols ||
          clean_col %in% clean_excludes ||
          clean_base %in% clean_excludes)
 }
-
-# State abbreviation to full name mapping
-STATE_ABBREVIATIONS <- c(
-  "AL" = "alabama", "AK" = "alaska", "AZ" = "arizona", "AR" = "arkansas", "CA" = "california",
-  "CO" = "colorado", "CT" = "connecticut", "DE" = "delaware", "FL" = "florida", "GA" = "georgia",
-  "HI" = "hawaii", "ID" = "idaho", "IL" = "illinois", "IN" = "indiana", "IA" = "iowa",
-  "KS" = "kansas", "KY" = "kentucky", "LA" = "louisiana", "ME" = "maine", "MD" = "maryland",
-  "MA" = "massachusetts", "MI" = "michigan", "MN" = "minnesota", "MS" = "mississippi", "MO" = "missouri",
-  "MT" = "montana", "NE" = "nebraska", "NV" = "nevada", "NH" = "new hampshire", "NJ" = "new jersey",
-  "NM" = "new mexico", "NY" = "new york", "NC" = "north carolina", "ND" = "north dakota", "OH" = "ohio",
-  "OK" = "oklahoma", "OR" = "oregon", "PA" = "pennsylvania", "RI" = "rhode island", "SC" = "south carolina",
-  "SD" = "south dakota", "TN" = "tennessee", "TX" = "texas", "UT" = "utah", "VT" = "vermont",
-  "VA" = "virginia", "WA" = "washington", "WV" = "west virginia", "WI" = "wisconsin", "WY" = "wyoming",
-  "DC" = "district of columbia", "PR" = "puerto rico", "VI" = "u.s. virgin islands", "GU" = "guam",
-  "MP" = "northern mariana islands", "AS" = "american samoa"
-)
 
 # Optimized text cleaning function (FIXED regex)
 clean_text_data <- function(text_vector) {
@@ -131,8 +134,8 @@ convert_state_abbreviations <- function(state_vector) {
 
 # Optimized SEVIS column cleaning
 clean_sevis_columns <- function(df, verbose = FALSE) {
-  columns_to_clean <- c("Employer_City", "Employer_State", "Campus_City", "Campus_State", 
-                       "Student_Edu_Level_Desc", "School_Name")
+  # Use columns from configuration
+  columns_to_clean <- TEXT_CLEANING_COLUMNS
   
   existing_columns <- intersect(columns_to_clean, colnames(df))
   
@@ -161,7 +164,7 @@ clean_sevis_columns <- function(df, verbose = FALSE) {
     cleaned_values <- clean_text_data(original_values)
     
     # For state columns, convert abbreviations to full names
-    if (grepl("_State$", col)) {
+    if (grepl("_STATE$", col)) {
       cleaned_values <- convert_state_abbreviations(cleaned_values)
       if (verbose) {
         cat(sprintf("    Converted state abbreviations in %s\n", col))
@@ -178,6 +181,91 @@ clean_sevis_columns <- function(df, verbose = FALSE) {
     }
   }
   
+  return(df)
+}
+
+# Function to restore leading zeros to ZIP codes (fix DHS/ICE source data issue)
+# Optimized for large datasets using vectorized operations
+fix_zip_leading_zeros <- function(df, verbose = FALSE) {
+  # Use configuration values
+  zero_states <- ZIP_FIX_STATES
+  zip_columns <- ZIP_COLUMNS
+  state_columns <- STATE_COLUMNS
+
+  if (verbose) {
+    cat("Restoring leading zeros to ZIP codes for Northeast states...\n")
+  }
+
+  # Convert to data.table if not already (for efficient in-place modification)
+  is_dt <- data.table::is.data.table(df)
+  if (!is_dt) {
+    df <- data.table::as.data.table(df)
+  }
+
+  # Process each ZIP/State pair
+  for (i in seq_along(zip_columns)) {
+    zip_col <- zip_columns[i]
+    state_col <- state_columns[i]
+
+    # Check if both columns exist
+    if (zip_col %in% colnames(df) && state_col %in% colnames(df)) {
+
+      # Convert ZIP to character if not already (in-place for data.table)
+      if (!is.character(df[[zip_col]])) {
+        df[, (zip_col) := as.character(get(zip_col))]
+      }
+
+      # Pre-compute lowercase state for efficiency (avoids repeated tolower calls)
+      # Only for rows where state is not NA
+      state_lower <- rep(NA_character_, nrow(df))
+      state_not_na <- !is.na(df[[state_col]])
+      state_lower[state_not_na] <- tolower(trimws(df[[state_col]][state_not_na]))
+
+      # Create vectorized mask for records that need padding
+      # Conditions: ZIP exists, is less than 5 digits, and is in an affected state
+      needs_padding <- !is.na(df[[zip_col]]) &
+                       nchar(df[[zip_col]]) < 5 &
+                       !is.na(state_lower) &
+                       state_lower %in% zero_states
+
+      n_affected <- sum(needs_padding, na.rm = TRUE)
+
+      if (verbose && n_affected > 0) {
+        cat(sprintf("  %s: Found %d truncated ZIPs in affected states\n",
+                    zip_col, n_affected))
+      }
+
+      # Pad with leading zeros using sprintf (faster than str_pad for this use case)
+      if (n_affected > 0) {
+        # Use sprintf with %05s to pad strings with leading zeros
+        df[needs_padding, (zip_col) := sprintf("%05s", get(zip_col))]
+
+        if (verbose) {
+          cat(sprintf("  %s: Restored leading zeros for %d ZIPs\n",
+                      zip_col, n_affected))
+        }
+      }
+    } else {
+      if (verbose) {
+        if (!(zip_col %in% colnames(df))) {
+          cat(sprintf("  Column %s not found, skipping\n", zip_col))
+        }
+        if (!(state_col %in% colnames(df))) {
+          cat(sprintf("  Column %s not found, skipping\n", state_col))
+        }
+      }
+    }
+  }
+
+  if (verbose) {
+    cat("ZIP code leading zero restoration complete\n")
+  }
+
+  # Convert back to data.frame if input was data.frame
+  if (!is_dt) {
+    df <- as.data.frame(df)
+  }
+
   return(df)
 }
 
@@ -784,14 +872,14 @@ clean_yearly_data_optimized <- function(input_dir, output_dir, date_cols,
     cat("Duplicates removed:", stats$duplicates_removed, "Remaining rows:", nrow(df), "\n")
     
     # Remove CPT entries (only if keep_cpt is FALSE)
-    if (!keep_cpt && "Employment_Description" %in% colnames(df)) {
+    if (!keep_cpt && "EMPLOYMENT_DESCRIPTION" %in% colnames(df)) {
       cat("Removing CPT entries...\n")
-      cpt_mask <- df$Employment_Description == "CPT"
+      cpt_mask <- df$EMPLOYMENT_DESCRIPTION == "CPT"
       stats$cpt_rows_removed <- sum(cpt_mask, na.rm = TRUE)
       df <- df[!cpt_mask]
       cat("CPT rows removed:", stats$cpt_rows_removed, "Remaining rows:", nrow(df), "\n")
     } else {
-      cat("Keeping CPT entries or Employment_Description column not found\n")
+      cat("Keeping CPT entries or EMPLOYMENT_DESCRIPTION column not found\n")
     }
     
     # Enhanced date parsing with validation (PRESERVED)
@@ -803,7 +891,7 @@ clean_yearly_data_optimized <- function(input_dir, output_dir, date_cols,
         # Use enhanced date parsing
         temp_dates <- parse_dates_safely(original_dates, col, verbose = TRUE)
 
-        if (col == "First_Entry_Date") {
+        if (col == "FIRST_ENTRY_DATE") {
           # Nullify future dates
           future_mask <- temp_dates > as.Date(future_cutoff)
           temp_dates[future_mask] <- NA
@@ -825,20 +913,35 @@ clean_yearly_data_optimized <- function(input_dir, output_dir, date_cols,
     # Clean specific SEVIS columns (PRESERVED)
     cat("Cleaning text data in SEVIS columns...\n")
     df <- clean_sevis_columns(df, verbose = TRUE)
-    
+
+    # Restore leading zeros to ZIP codes BEFORE lowercase conversion
+    # (fixes DHS/ICE source data issue, must run before lowercase to preserve character type)
+    cat("Restoring leading zeros to ZIP codes...\n")
+    df <- fix_zip_leading_zeros(df, verbose = TRUE)
+
     # Convert all remaining character columns to lowercase
+    # (ZIP codes are now character and will be included, but digits are case-insensitive so unaffected)
     char_cols <- names(df)[sapply(df, is.character)]
     df[, (char_cols) := lapply(.SD, tolower), .SDcols = char_cols]
-    
+
     # Write cleaned data with enhanced error handling (PRESERVED)
     output_path <- fs::path(output_dir, sprintf("cleaned_%s_all.csv", year))
     cat("Writing cleaned data to:", output_path, "\n")
     cat("Final data size - Rows:", nrow(df), "Columns:", ncol(df), "\n")
     
+    # Ensure ZIP code columns remain as character type (prevent auto-conversion to integer)
+    zip_cols <- c("CAMPUS_ZIP_CODE", "EMPLOYER_ZIP_CODE")
+    for (col in zip_cols) {
+      if (col %in% colnames(df)) {
+        df[[col]] <- as.character(df[[col]])
+      }
+    }
+
     cat("Using data.table fwrite...\n")
     safe_file_operation(
       operation = function() {
-        fwrite(df, output_path)
+        # Use quote="auto" to preserve leading zeros in numeric-looking strings
+        fwrite(df, output_path, quote="auto")
       },
       file_path = output_path,
       operation_name = "writing cleaned file"
@@ -886,12 +989,8 @@ combine_and_clean_data_optimized <- function(root_dir, raw_output_dir, clean_out
   cat("            write_raw_files =", write_raw_files, "\n")
   cat("            write_clean_files =", write_clean_files, "\n")
 
-  date_cols <- c("First_Entry_Date", "Last_Entry_Date", "Last_Departure_Date",
-               "Visa_Issue_Date", "Visa_Expiration_Date",
-               "Program_Start_Date", "Program_End_Date",
-               "Authorization_Start_Date", "Authorization_End_Date",
-               "OPT_Authorization_Start_Date", "OPT_Authorization_End_Date",
-               "OPT_Employer_Start_Date", "OPT_Employer_End_Date")
+  # Use date columns from configuration
+  date_cols <- DATE_COLUMNS
 
   # First, combine the raw data (this writes to files)
   if (write_raw_files) {
@@ -934,7 +1033,9 @@ combine_and_clean_data_optimized <- function(root_dir, raw_output_dir, clean_out
   }
   
   return(list(
-    cleaning_summary = cleaning_summary
+    cleaning_summary = cleaning_summary,
+    raw_output_dir = if(write_raw_files) raw_output_dir else "",
+    clean_output_dir = if(write_clean_files) clean_output_dir else ""
   ))
 }
 
@@ -991,14 +1092,14 @@ check_directory_headers <- function(dir_path, exclude_cols = DEFAULT_EXCLUDE_COL
 
 # Example usage - configured for OPT Observatory repository
 result <- combine_and_clean_data_optimized(
-  root_dir = "/Users/Violet/Library/CloudStorage/GoogleDrive-violet@ifp.org/Shared drives/DataDrive/raw/sevis_data/F-1",
+  root_dir = "/Users/violet/Library/CloudStorage/GoogleDrive-violet@ifp.org/Shared drives/DataDrive/raw/sevis_data/F-1",
   raw_output_dir = "/Users/violet/Desktop/repos/OPT-observatory/data/raw",
   clean_output_dir = "/Users/violet/Desktop/repos/OPT-observatory/data/cleaned",
-  write_raw_files = TRUE,
+  write_raw_files = FALSE,  # Raw files already exist in data/raw
   write_clean_files = TRUE,
   exclude_cols = DEFAULT_EXCLUDE_COLS,
   verbose = TRUE,
-  year_range = as.character(2004:2023),
+  year_range = c(2004:2023),  # TEST: verify employer ZIP fix
   keep_cpt = TRUE,
   historic_cutoff = "1980-01-01"  # Nullify dates before 1980
 )

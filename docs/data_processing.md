@@ -2,7 +2,15 @@
 
 ## Overview
 
-The `load_data_parallel.R` script cleans and transforms the raw excerpts from the Student and Exchange Visitor Information System (SEVIS) provided in the ICE FOIA Library under #43657. This document details each step of the cleaning process for F-1 SEVIS microdata from this release, please contact the authors of the repository with any questions or to raise suspected errors.
+The `load_data_parallel.R` script cleans and transforms the raw excerpts from the Student and Exchange Visitor Information System (SEVIS) provided in the ICE FOIA Library under #43657 in 13 parts, dated October 1, 2024.
+
+Our processing pipeline for the data is as follows:
+
+1. **Raw FOIA data**: Original Excel files, multiple per year
+2. **Combined by year**: All Excel files for a given year combined into a single CSV by standardizing their headers (e.g., `2004_all.csv`)
+3. **Cleaned data**: An extensively cleaned single CSV file for each year (e.g., `cleaned_2004_all.csv`)
+
+This document details each step of the cleaning process for F-1 SEVIS microdata from this release, please contact the authors of the repository with any questions or to raise suspected errors.
 
 ## Table of Contents
 
@@ -248,9 +256,10 @@ File: 2015_Dec.csv (has 45 columns)
 
 **Processing steps:**
 1. Removes timezone information
-2. Tries multiple date formats (ymd, mdy, dmy, etc.)
+2. Tries multiple date formats (ymd, mdy, dmy, etc.) 
 3. Validates parsing success rate (warns if <99% successful)
 4. **Special handling for `First_Entry_Date`**: Nullifies dates after 2024-01-01 (data quality check for impossible future dates given data publication in fall 2023)
+5.  Program end dates that are earlier than their program start dates are nullified and not counted in totals.
 
 ### 5. Text Cleaning and Standardization
 
