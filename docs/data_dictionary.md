@@ -101,84 +101,490 @@ This data is provided by ICE without documentation. The following gives our best
 
 ### Student Demographics
 
-| Position | Column Name | Description | Data Type | Variability | Notes |
-|----------|------------|-------------|-----------|-------------|-------|
-|1|**COUNTRY_OF_BIRTH** | Student's country of birth | String (lowercase) | Constant | - |
-|2|**COUNTRY_OF_CITIZENSHIP** | Student's country of citizenship | String (lowercase) | Constant | May differ from country of birth |
-|44|**INDIVIDUAL_KEY** | Person-level identifier | Integer | - | Multiple records can share the same key; use for tracking individuals across records |
-|45|**STUDENT_KEY** | Program-level identifier | Integer | - | Tracks individual programs of study; one person (INDIVIDUAL_KEY) can have multiple STUDENT_KEYs (e.g., BA then PhD) |
+<table>
+<thead>
+  <tr>
+    <th style="width: 5%;">Position</th>
+    <th style="width: 15%;">Column Name</th>
+    <th style="width: 18%;">Description</th>
+    <th style="width: 10%;">Data Type</th>
+    <th style="width: 10%;">Variability</th>
+    <th style="width: 42%;">Notes</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td>1</td>
+    <td><strong>COUNTRY_OF_BIRTH</strong></td>
+    <td>Student's country of birth</td>
+    <td>String (lowercase)</td>
+    <td>Constant</td>
+    <td>-</td>
+  </tr>
+  <tr>
+    <td>2</td>
+    <td><strong>COUNTRY_OF_CITIZENSHIP</strong></td>
+    <td>Student's country of citizenship</td>
+    <td>String (lowercase)</td>
+    <td>Constant</td>
+    <td>May differ from country of birth</td>
+  </tr>
+  <tr>
+    <td>44</td>
+    <td><strong>INDIVIDUAL_KEY</strong></td>
+    <td>Person-level identifier</td>
+    <td>Integer</td>
+    <td>-</td>
+    <td>Multiple records can share the same key; use for tracking individuals across records</td>
+  </tr>
+  <tr>
+    <td>45</td>
+    <td><strong>STUDENT_KEY</strong></td>
+    <td>Program-level identifier</td>
+    <td>Integer</td>
+    <td>-</td>
+    <td>Tracks individual programs of study; one person (INDIVIDUAL_KEY) can have multiple STUDENT_KEYs (e.g., BA then PhD)</td>
+  </tr>
+</tbody>
+</table>
 
 ### Entry and Visa Information
 
-| Position | Column Name | Description | Data Type | Variability | Notes |
-|----------|------------|-------------|-----------|-------------|-------|
-|3|**FIRST_ENTRY_DATE** | Date of first entry to the U.S. | Date (YYYY-MM-DD) | Constant | May be blank; dates after 2024-01-01 are nullified |
-|4|**LAST_ENTRY_DATE** | Date of most recent entry to the U.S. | Date (YYYY-MM-DD) | Variable | May be blank for students who haven't left/re-entered; updates with new entries |
-|5|**LAST_DEPARTURE_DATE** | Date of most recent departure from U.S. | Date (YYYY-MM-DD) | Variable | May be blank if student hasn't departed; updates with departures |
-|6|**CLASS_OF_ADMISSION** | Visa class at entry | String (lowercase) | Constant | All records in cleaned data are "f1" |
-|7|**VISA_ISSUE_DATE** | Date visa was issued | Date (YYYY-MM-DD) | Variable | May be blank; can change if visa is reissued |
-|8|**VISA_EXPIRATION_DATE** | Date visa expires | Date (YYYY-MM-DD) | Variable | May be blank; changes with visa renewals |
+<table>
+<thead>
+  <tr>
+    <th style="width: 5%;">Position</th>
+    <th style="width: 15%;">Column Name</th>
+    <th style="width: 18%;">Description</th>
+    <th style="width: 10%;">Data Type</th>
+    <th style="width: 10%;">Variability</th>
+    <th style="width: 42%;">Notes</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td>3</td>
+    <td><strong>FIRST_ENTRY_DATE</strong></td>
+    <td>Date of first entry to the U.S.</td>
+    <td>Date (YYYY-MM-DD)</td>
+    <td>Constant</td>
+    <td>May be blank; dates after 2024-01-01 are nullified</td>
+  </tr>
+  <tr>
+    <td>4</td>
+    <td><strong>LAST_ENTRY_DATE</strong></td>
+    <td>Date of most recent entry to the U.S.</td>
+    <td>Date (YYYY-MM-DD)</td>
+    <td>Variable</td>
+    <td>May be blank for students who haven't left/re-entered; updates with new entries</td>
+  </tr>
+  <tr>
+    <td>5</td>
+    <td><strong>LAST_DEPARTURE_DATE</strong></td>
+    <td>Date of most recent departure from U.S.</td>
+    <td>Date (YYYY-MM-DD)</td>
+    <td>Variable</td>
+    <td>May be blank if student hasn't departed; updates with departures</td>
+  </tr>
+  <tr>
+    <td>6</td>
+    <td><strong>CLASS_OF_ADMISSION</strong></td>
+    <td>Visa class at entry</td>
+    <td>String (lowercase)</td>
+    <td>Constant</td>
+    <td>All records in cleaned data are "f1"</td>
+  </tr>
+  <tr>
+    <td>7</td>
+    <td><strong>VISA_ISSUE_DATE</strong></td>
+    <td>Date visa was issued</td>
+    <td>Date (YYYY-MM-DD)</td>
+    <td>Variable</td>
+    <td>May be blank; can change if visa is reissued</td>
+  </tr>
+  <tr>
+    <td>8</td>
+    <td><strong>VISA_EXPIRATION_DATE</strong></td>
+    <td>Date visa expires</td>
+    <td>Date (YYYY-MM-DD)</td>
+    <td>Variable</td>
+    <td>May be blank; changes with visa renewals</td>
+  </tr>
+</tbody>
+</table>
 
 ### Educational Program Information
 
-| Position | Column Name | Description | Data Type | Variability | Notes |
-|----------|------------|-------------|-----------|-------------|-------|
-|9|**SCHOOL_NAME** | Name of educational institution | String (lowercase) | Variable | - |
-|10|**CAMPUS_CITY** | City of school address | String (lowercase) | Variable | - |
-|11|**CAMPUS_STATE** | State of school address | String (lowercase) | Variable | Full state names (not abbreviations) |
-|12|**CAMPUS_ZIP_CODE** | ZIP code of school address | String | Variable | - |
-|13|**MAJOR_1_CIP_CODE** | Primary major CIP code | Numeric | Variable | Classification of Instructional Programs code; 6-digit with 4 decimal places (e.g., "11.0701") |
-|14|**MAJOR_1_DESCRIPTION** | Primary major name | String (lowercase) | Variable | E.g., "computer science", "business administration" |
-|15|**MAJOR_2_CIP_CODE** | Secondary major CIP code | Numeric | Variable | 6-digit with 4 decimal places; 0.0 if no second major |
-|16|**MAJOR_2_DESCRIPTION** | Secondary major name | String (lowercase) | Variable | Blank if no second major |
-|17|**MINOR_CIP_CODE** | Minor CIP code | Numeric | Variable | 6-digit with 4 decimal places; 0.0 if no minor |
-|18|**MINOR_DESCRIPTION** | Minor name | String (lowercase) | Variable | Blank if no minor |
-|19|**PROGRAM_START_DATE** | Start date of academic program | Date (YYYY-MM-DD) | Variable | Different for each program/record |
-|20|**PROGRAM_END_DATE** | End date of academic program | Date (YYYY-MM-DD) | Variable | Expected completion date at time of program start; different for each program/record |
-|43|**STUDENT_EDU_LEVEL_DESC** | Educational level | String (lowercase) | Variable | E.g., "bachelor's", "master's", "doctorate"; changes with degree progression |
+<table>
+<thead>
+  <tr>
+    <th style="width: 5%;">Position</th>
+    <th style="width: 15%;">Column Name</th>
+    <th style="width: 18%;">Description</th>
+    <th style="width: 10%;">Data Type</th>
+    <th style="width: 10%;">Variability</th>
+    <th style="width: 42%;">Notes</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td>9</td>
+    <td><strong>SCHOOL_NAME</strong></td>
+    <td>Name of educational institution</td>
+    <td>String (lowercase)</td>
+    <td>Variable</td>
+    <td>Standardized in raw data</td>
+  </tr>
+  <tr>
+    <td>10</td>
+    <td><strong>CAMPUS_CITY</strong></td>
+    <td>City of school address</td>
+    <td>String (lowercase)</td>
+    <td>Variable</td>
+    <td>-</td>
+  </tr>
+  <tr>
+    <td>11</td>
+    <td><strong>CAMPUS_STATE</strong></td>
+    <td>State of school address</td>
+    <td>String (lowercase)</td>
+    <td>Variable</td>
+    <td>Standardized during cleaning: abbreviations converted to full state names (e.g., "MA" → "massachusetts")</td>
+  </tr>
+  <tr>
+    <td>12</td>
+    <td><strong>CAMPUS_ZIP_CODE</strong></td>
+    <td>ZIP code of school address</td>
+    <td>String</td>
+    <td>Variable</td>
+    <td>Standardized during cleaning: leading zeros restored via padding for states/territories with ZIP codes starting with 0 (MA, RI, CT, NH, ME, VT, NJ, PR, VI) where raw data ZIP codes were 4 digits instead of 5</td>
+  </tr>
+  <tr>
+    <td>13</td>
+    <td><strong>MAJOR_1_CIP_CODE</strong></td>
+    <td>Primary major CIP code</td>
+    <td>Numeric</td>
+    <td>Variable</td>
+    <td>Classification of Instructional Programs code; 6-digit with 4 decimal places (e.g., "11.0701")</td>
+  </tr>
+  <tr>
+    <td>14</td>
+    <td><strong>MAJOR_1_DESCRIPTION</strong></td>
+    <td>Primary major name</td>
+    <td>String (lowercase)</td>
+    <td>Variable</td>
+    <td>Standardized in raw data; e.g., "computer science", "business administration"</td>
+  </tr>
+  <tr>
+    <td>15</td>
+    <td><strong>MAJOR_2_CIP_CODE</strong></td>
+    <td>Secondary major CIP code</td>
+    <td>Numeric</td>
+    <td>Variable</td>
+    <td>6-digit with 4 decimal places; 0.0 if no second major</td>
+  </tr>
+  <tr>
+    <td>16</td>
+    <td><strong>MAJOR_2_DESCRIPTION</strong></td>
+    <td>Secondary major name</td>
+    <td>String (lowercase)</td>
+    <td>Variable</td>
+    <td>Standardized in raw data; blank if no second major</td>
+  </tr>
+  <tr>
+    <td>17</td>
+    <td><strong>MINOR_CIP_CODE</strong></td>
+    <td>Minor CIP code</td>
+    <td>Numeric</td>
+    <td>Variable</td>
+    <td>6-digit with 4 decimal places; 0.0 if no minor</td>
+  </tr>
+  <tr>
+    <td>18</td>
+    <td><strong>MINOR_DESCRIPTION</strong></td>
+    <td>Minor name</td>
+    <td>String (lowercase)</td>
+    <td>Variable</td>
+    <td>Standardized in raw data; blank if no minor</td>
+  </tr>
+  <tr>
+    <td>19</td>
+    <td><strong>PROGRAM_START_DATE</strong></td>
+    <td>Start date of academic program</td>
+    <td>Date (YYYY-MM-DD)</td>
+    <td>Variable</td>
+    <td>Different for each program/record</td>
+  </tr>
+  <tr>
+    <td>20</td>
+    <td><strong>PROGRAM_END_DATE</strong></td>
+    <td>End date of academic program</td>
+    <td>Date (YYYY-MM-DD)</td>
+    <td>Variable</td>
+    <td>Expected completion date at time of program start; different for each program/record</td>
+  </tr>
+  <tr>
+    <td>43</td>
+    <td><strong>STUDENT_EDU_LEVEL_DESC</strong></td>
+    <td>Educational level</td>
+    <td>String (lowercase)</td>
+    <td>Variable</td>
+    <td>E.g., "bachelor's", "master's", "doctorate"; changes with degree progression</td>
+  </tr>
+</tbody>
+</table>
 
 ### Employment Information (OPT/CPT)
 
-| Position | Column Name | Description | Data Type | Variability | Notes |
-|----------|------------|-------------|-----------|-------------|-------|
-|21|**EMPLOYER_NAME** | Name of employer | String (lowercase) | Variable | Only for students with work authorization |
-|22|**EMPLOYER_CITY** | City of employer address | String (lowercase) | Variable | - |
-|23|**EMPLOYER_STATE** | State of employer address | String (lowercase) | Variable | Full state names (not abbreviations) |
-|24|**EMPLOYER_ZIP_CODE** | ZIP code of employer address | String | Variable | - |
-|25|**JOB_TITLE** | Job title or position | String (lowercase) | Variable | Sparsely populated |
-|26|**EMPLOYMENT_DESCRIPTION** | Type of employment authorization | String (lowercase) | Variable | Values: "opt" (Optional Practical Training) or "cpt" (Curricular Practical Training) |
-|27|**AUTHORIZATION_START_DATE** | Start date of work authorization | Date (YYYY-MM-DD) | Variable | Always present if OPT_AUTHORIZATION_START_DATE is present |
-|28|**AUTHORIZATION_END_DATE** | End date of work authorization | Date (YYYY-MM-DD) | Variable | Always present if OPT_AUTHORIZATION_END_DATE is present |
-|29|**OPT_AUTHORIZATION_START_DATE** | OPT-specific authorization start | Date (YYYY-MM-DD) | Variable | Less comprehensive; when present, matches AUTHORIZATION_START_DATE |
-|30|**OPT_AUTHORIZATION_END_DATE** | OPT-specific authorization end | Date (YYYY-MM-DD) | Variable | Less comprehensive; when present, matches AUTHORIZATION_END_DATE |
-|31|**OPT_EMPLOYER_START_DATE** | Date employment with this employer began | Date (YYYY-MM-DD) | Variable | Can differ from authorization dates if student changed employers mid-OPT |
-|32|**OPT_EMPLOYER_END_DATE** | Date employment with this employer ended | Date (YYYY-MM-DD) | Variable | May differ from authorization dates |
-|33|**EMPLOYMENT_OPT_TYPE** | Type of OPT | String (lowercase) | Variable | Values: "post-completion", "pre-completion", or "stem"; individuals often have multiple types |
-|34|**EMPLOYMENT_TIME** | Full-time or part-time employment | String (lowercase) | Variable | Values: "full time" or "part time" |
-|35|**UNEMPLOYMENT_DAYS** | Days of unemployment during OPT | Numeric | Variable | Cumulative days; OPT allows max 90 days |
+<table>
+<thead>
+  <tr>
+    <th style="width: 5%;">Position</th>
+    <th style="width: 15%;">Column Name</th>
+    <th style="width: 18%;">Description</th>
+    <th style="width: 10%;">Data Type</th>
+    <th style="width: 10%;">Variability</th>
+    <th style="width: 42%;">Notes</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td>21</td>
+    <td><strong>EMPLOYER_NAME</strong></td>
+    <td>Name of employer</td>
+    <td>String (lowercase)</td>
+    <td>Variable</td>
+    <td>Not standardized in raw data; only present for students with work authorization</td>
+  </tr>
+  <tr>
+    <td>22</td>
+    <td><strong>EMPLOYER_CITY</strong></td>
+    <td>City of employer address</td>
+    <td>String (lowercase)</td>
+    <td>Variable</td>
+    <td>-</td>
+  </tr>
+  <tr>
+    <td>23</td>
+    <td><strong>EMPLOYER_STATE</strong></td>
+    <td>State of employer address</td>
+    <td>String (lowercase)</td>
+    <td>Variable</td>
+    <td>Standardized during cleaning: abbreviations converted to full state names (e.g., "MA" → "massachusetts")</td>
+  </tr>
+  <tr>
+    <td>24</td>
+    <td><strong>EMPLOYER_ZIP_CODE</strong></td>
+    <td>ZIP code of employer address</td>
+    <td>String</td>
+    <td>Variable</td>
+    <td>Standardized during cleaning: leading zeros restored via padding for states/territories with ZIP codes starting with 0 (MA, RI, CT, NH, ME, VT, NJ, PR, VI) where raw data ZIP codes were 4 digits instead of 5</td>
+  </tr>
+  <tr>
+    <td>25</td>
+    <td><strong>JOB_TITLE</strong></td>
+    <td>Job title or position</td>
+    <td>String (lowercase)</td>
+    <td>Variable</td>
+    <td>Sparsely populated</td>
+  </tr>
+  <tr>
+    <td>26</td>
+    <td><strong>EMPLOYMENT_DESCRIPTION</strong></td>
+    <td>Type of employment authorization</td>
+    <td>String (lowercase)</td>
+    <td>Variable</td>
+    <td>Values: "opt" (Optional Practical Training) or "cpt" (Curricular Practical Training)</td>
+  </tr>
+  <tr>
+    <td>27</td>
+    <td><strong>AUTHORIZATION_START_DATE</strong></td>
+    <td>Start date of work authorization</td>
+    <td>Date (YYYY-MM-DD)</td>
+    <td>Variable</td>
+    <td>Always present if OPT_AUTHORIZATION_START_DATE is present</td>
+  </tr>
+  <tr>
+    <td>28</td>
+    <td><strong>AUTHORIZATION_END_DATE</strong></td>
+    <td>End date of work authorization</td>
+    <td>Date (YYYY-MM-DD)</td>
+    <td>Variable</td>
+    <td>Always present if OPT_AUTHORIZATION_END_DATE is present</td>
+  </tr>
+  <tr>
+    <td>29</td>
+    <td><strong>OPT_AUTHORIZATION_START_DATE</strong></td>
+    <td>OPT-specific authorization start</td>
+    <td>Date (YYYY-MM-DD)</td>
+    <td>Variable</td>
+    <td>Less comprehensive; when present, matches AUTHORIZATION_START_DATE</td>
+  </tr>
+  <tr>
+    <td>30</td>
+    <td><strong>OPT_AUTHORIZATION_END_DATE</strong></td>
+    <td>OPT-specific authorization end</td>
+    <td>Date (YYYY-MM-DD)</td>
+    <td>Variable</td>
+    <td>Less comprehensive; when present, matches AUTHORIZATION_END_DATE</td>
+  </tr>
+  <tr>
+    <td>31</td>
+    <td><strong>OPT_EMPLOYER_START_DATE</strong></td>
+    <td>Date employment with this employer began</td>
+    <td>Date (YYYY-MM-DD)</td>
+    <td>Variable</td>
+    <td>Can differ from authorization dates if student changed employers mid-OPT</td>
+  </tr>
+  <tr>
+    <td>32</td>
+    <td><strong>OPT_EMPLOYER_END_DATE</strong></td>
+    <td>Date employment with this employer ended</td>
+    <td>Date (YYYY-MM-DD)</td>
+    <td>Variable</td>
+    <td>May differ from authorization dates</td>
+  </tr>
+  <tr>
+    <td>33</td>
+    <td><strong>EMPLOYMENT_OPT_TYPE</strong></td>
+    <td>Type of OPT</td>
+    <td>String (lowercase)</td>
+    <td>Variable</td>
+    <td>Values: "post-completion", "pre-completion", or "stem"; individuals often have multiple types</td>
+  </tr>
+  <tr>
+    <td>34</td>
+    <td><strong>EMPLOYMENT_TIME</strong></td>
+    <td>Full-time or part-time employment</td>
+    <td>String (lowercase)</td>
+    <td>Variable</td>
+    <td>Values: "full time" or "part time"</td>
+  </tr>
+  <tr>
+    <td>35</td>
+    <td><strong>UNEMPLOYMENT_DAYS</strong></td>
+    <td>Days of unemployment during OPT</td>
+    <td>Numeric</td>
+    <td>Variable</td>
+    <td>Cumulative days; OPT allows max 90 days</td>
+  </tr>
+</tbody>
+</table>
 
 ### Financial Information
 
-| Position | Column Name | Description | Data Type | Variability | Notes |
-|----------|------------|-------------|-----------|-------------|-------|
-|36|**TUITION_FEES** | Annual tuition and fees (USD) | Numeric | Variable | Self-reported or institutional data |
-|37|**STUDENTS_PERSONAL_FUNDS** | Student's personal funds (USD) | Numeric | Variable | Financial support from student/family |
-|38|**FUNDS_FROM_THIS_SCHOOL** | Funding from the institution (USD) | Numeric | Variable | Scholarships, assistantships, etc. |
-|39|**FUNDS_FROM_OTHER_SOURCES** | Funding from other sources (USD) | Numeric | Variable | External scholarships, government funding, etc. |
-|40|**ON_CAMPUS_EMPLOYMENT** | Likely earnings from on-campus employment (USD) | Numeric | Variable | Interpretation uncertain; may be 0.0 or blank if no on-campus work |
+<table>
+<thead>
+  <tr>
+    <th style="width: 5%;">Position</th>
+    <th style="width: 15%;">Column Name</th>
+    <th style="width: 18%;">Description</th>
+    <th style="width: 10%;">Data Type</th>
+    <th style="width: 10%;">Variability</th>
+    <th style="width: 42%;">Notes</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td>36</td>
+    <td><strong>TUITION_FEES</strong></td>
+    <td>Annual tuition and fees (USD)</td>
+    <td>Numeric</td>
+    <td>Variable</td>
+    <td>Self-reported or institutional data</td>
+  </tr>
+  <tr>
+    <td>37</td>
+    <td><strong>STUDENTS_PERSONAL_FUNDS</strong></td>
+    <td>Student's personal funds (USD)</td>
+    <td>Numeric</td>
+    <td>Variable</td>
+    <td>Financial support from student/family</td>
+  </tr>
+  <tr>
+    <td>38</td>
+    <td><strong>FUNDS_FROM_THIS_SCHOOL</strong></td>
+    <td>Funding from the institution (USD)</td>
+    <td>Numeric</td>
+    <td>Variable</td>
+    <td>Scholarships, assistantships, etc.</td>
+  </tr>
+  <tr>
+    <td>39</td>
+    <td><strong>FUNDS_FROM_OTHER_SOURCES</strong></td>
+    <td>Funding from other sources (USD)</td>
+    <td>Numeric</td>
+    <td>Variable</td>
+    <td>External scholarships, government funding, etc.</td>
+  </tr>
+  <tr>
+    <td>40</td>
+    <td><strong>ON_CAMPUS_EMPLOYMENT</strong></td>
+    <td>Likely earnings from on-campus employment (USD)</td>
+    <td>Numeric</td>
+    <td>Variable</td>
+    <td>Interpretation uncertain; may be 0.0 or blank if no on-campus work</td>
+  </tr>
+</tbody>
+</table>
 
 ### Status Information
 
-| Position | Column Name | Description | Data Type | Variability | Notes |
-|----------|------------|-------------|-----------|-------------|-------|
-|41|**REQUESTED_STATUS** | Requested change of visa status | String | Variable | Change of status from F-1 to another visa type; codes are generally self-explanatory (e.g., "o1a"). H-1B variants: "1b1" and "h1b" are regular H-1Bs, "1b2" is H-1B2, "1b3" is H-1B3, "hsc" is H-1B1; typically constant across individual's rows |
-|42|**STATUS_CODE** | Not reliable; interpretation unclear | String (lowercase) | Variable | Values: "completed", "deactivated", "terminated", "active", "canceled" |
+<table>
+<thead>
+  <tr>
+    <th style="width: 5%;">Position</th>
+    <th style="width: 15%;">Column Name</th>
+    <th style="width: 18%;">Description</th>
+    <th style="width: 10%;">Data Type</th>
+    <th style="width: 10%;">Variability</th>
+    <th style="width: 42%;">Notes</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td>41</td>
+    <td><strong>REQUESTED_STATUS</strong></td>
+    <td>Requested change of visa status</td>
+    <td>String</td>
+    <td>Variable</td>
+    <td>Change of status from F-1 to another visa type; codes are generally self-explanatory (e.g., "o1a"). H-1B variants: "1b1" and "h1b" are regular H-1Bs, "1b2" is H-1B2, "1b3" is H-1B3, "hsc" is H-1B1; typically constant across individual's rows</td>
+  </tr>
+  <tr>
+    <td>42</td>
+    <td><strong>STATUS_CODE</strong></td>
+    <td>Not reliable; interpretation unclear</td>
+    <td>String (lowercase)</td>
+    <td>Variable</td>
+    <td>Values: "completed", "deactivated", "terminated", "active", "canceled"</td>
+  </tr>
+</tbody>
+</table>
 
 ### Administrative Fields
 
-| Position | Column Name | Description | Data Type | Variability | Notes |
-|----------|------------|-------------|-----------|-------------|-------|
-|46|**Year** | Fiscal year indicator | Integer | - | FY is Oct 1 - Sept 30; indicates which year file contains this record |
+<table>
+<thead>
+  <tr>
+    <th style="width: 5%;">Position</th>
+    <th style="width: 15%;">Column Name</th>
+    <th style="width: 18%;">Description</th>
+    <th style="width: 10%;">Data Type</th>
+    <th style="width: 10%;">Variability</th>
+    <th style="width: 42%;">Notes</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td>46</td>
+    <td><strong>Year</strong></td>
+    <td>Fiscal year indicator</td>
+    <td>Integer</td>
+    <td>-</td>
+    <td><strong>Constructed variable:</strong> Created by extracting the fiscal year from each file's name and adding it to every row in that year's file. This allows all years to be combined while retaining the data source for each record. FY is Oct 1 - Sept 30; indicates which year file contains this record</td>
+  </tr>
+</tbody>
+</table>
 
 <!-- ## Understanding OPT vs CPT
 

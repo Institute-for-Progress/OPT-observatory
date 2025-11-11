@@ -67,14 +67,14 @@
   ],
   "zip_fix_states": [
     "massachusetts",
+    "rhode island",
     "connecticut",
     "new hampshire",
     "maine",
     "vermont",
     "new jersey",
     "puerto rico",
-    "virgin islands",
-    "american samoa"
+    "virgin islands"
   ],
   "date_columns": [
     "FIRST_ENTRY_DATE",
