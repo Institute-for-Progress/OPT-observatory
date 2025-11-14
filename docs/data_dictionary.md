@@ -69,13 +69,19 @@ We act on the **assumption that:** for any given year's file, **if a student has
 
 ## Known Data Quality Issues
 
-1. There are **important data quality issues in FY2004-2009 and in FY2023.** We do not recommend using these files at all. The FY2009 and FY2010 files are identical, and discontinuities in student enrollments and changes of status between 2008 and 2009 resolve the file labeled FY2008
+1. There are **important data quality issues in FY2004-2009 and in FY2023.** We do not recommend using these files at all. 
 
+**Suspected mislabeling of FY2004-2009:**
+Files labeled FY2009 and FY2010 files are identical. There are also significant discontinuities in student enrollment and change of status request trends. However, when the data labeled as FY2004-2008 are analyzed, respectively, as if they were FY2005-2009 (each one year higher), these discontinuities resolve and trends become internally consistent, plus begin to match estimates from other sources. 
 
-1. Extensive **missing data.** Many fields, especially ones related to employer location, are missing data.
-2. **Miscoded data,** e.g. first entry dates in the year 3000, or program end dates that are earlier than that program's start date. In general these are nullified, and not counted towards totals.
-3. **Suspected mislabeling of files,** we suspect that the data labeled 2005-2008 was incorrectly titled, and should be one fiscal year higher (2005 → FY 2006, 2006 → FY 2007, 2007 → FY 2008, 2008 → FY 2009), and that the FY2009 data is missing. The FY2009 and FY2010 files provided are identical, and discontinuities in enrollments and changes of status between 2008 and 2009 resolve when this assumption is implemented. This has not been verified with the FOIA office, and the OPT Observatory does not analyze data for these years.
-4. **Unclear STATUS_CODE interpretation.** The STATUS_CODE field is not reliable and we cannot definitively determine whether students graduated based on available fields. There is no clear indicator of program completion or graduation.
+Based on this, we suspect that the data labeled FY2005-2008 was incorrectly titled, and should be one fiscal year higher (FY2005 → FY2006, FY2006 → FY2007, FY2007 → FY2008, FY2008 → FY2009). This has not been verified with the FOIA office, and the OPT Observatory avoids this concern by not analyzing data from these years.
+
+**Truncation of FY2023:**
+The file labeled FY2023 is the smallest of any year's data, and produces unbelievable counts for metrics like enrolled international students and OPT participants. It has not been confirmed by the FOIA office, but we believe this data is severely truncated, and unusable for our purposes as a result. It is not analyzed by the OPT Observatory.
+
+2. There is **extensive missing data.** Many fields, especially ones related to employer location, are missing significant amounts of data and left blank. In some cases, it could be possible to backfill these (e.g. with employer addresses).
+3. **Data is often miscoded,** e.g. past events are dated in the future, vice versa. Program end dates may also be earlier than that program's start date. In general, nonsensical entries are nullified and not counted towards totals.
+4. Variables are **not necessarily meaningful.** The STATUS_CODE field is unreliable and difficult to interpret, and we cannot definitively determine whether students actually graduated based on it despite the field sometimes containing values like "completed". There is no clear indicator of program completion or graduation in the data besides expected program end date, which is listed regardless of whether an enrollee has actually graduated.
 
 ## Column Definitions
 
