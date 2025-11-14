@@ -92,6 +92,7 @@
     "OPT_EMPLOYER_END_DATE"
   ],
   "text_cleaning_columns": [
+    "EMPLOYER_NAME",
     "EMPLOYER_CITY",
     "EMPLOYER_STATE",
     "CAMPUS_CITY",

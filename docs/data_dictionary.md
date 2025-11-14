@@ -2,24 +2,14 @@
 
 ## Overview
 
-This page describes the structure and content of the data underlying the the Institute for Progress's OPT Observatory. Obtained via a FOIA request from U.S. Immigration and Customs Enforcement (ICE), the data is an excerpt from the Student and Exchange Visitor Information System (SEVIS), accessible in the ICE FOIA Library under #43657, with a release date of October 1st 2024. While the OPT Observatory and the remainder of this document only describe the data on F-1 international students, a small amount of information on J-1 exchange visitors was also included.
+This page describes the structure and content of the data underlying the Institute for Progress's OPT Observatory. Obtained via a FOIA request from U.S. Immigration and Customs Enforcement (ICE), the data is an excerpt from the Student and Exchange Visitor Information System (SEVIS).. While the OPT Observatory and the remainder of this document only describe the data on F-1 international students, information on J-1 exchange visitors was also included.
 
-## Data Processing Pipeline
+## Data Access
+We strongly encourage data users to work off the cleaned files. They are available for download here. For detailed information on the cleaning process, see the [Data Processing Documentation](data_processing.md).
 
-### Accessing the Raw FOIA Data
+Note: there are important data quality issues in FY2004-2009 and in FY2023. We do not recommend using these files at all. If you do use these files, please thoroughly read our description of known problems and independently verify them.
 
-To find the original raw data from ICE:
-- Visit the ICE FOIA Library: https://www.ice.gov/foia/library
-- Search for: **43657**
-- Expect to see 13 files dated October 1, 2024 available for download. These should include one folder for each year of F-1 data from 2004-2023, as well as J-1 data
-
-Our processing pipeline for the data is as follows:
-
-1. **Raw FOIA data**: Original Excel files, multiple per year
-2. **Combined by year**: All Excel files for a given year combined into a single CSV by standardizing their headers (e.g., `2004_all.csv`)
-3. **Cleaned data**: An extensively cleaned single CSV file for each year (e.g., `cleaned_2004_all.csv`)
-
-Unless there is a compelling reason not to, we strongly encourage data users to work off the cleaned files. For detailed information on the cleaning process, see the [Data Processing Documentation](data_processing.md).
+The original raw data from ICE is available to download [gDrive placeholder](https://www.ice.gov/foia/library). It is also available from ICE FOIA Library under #43657 in 13 parts, dated October 1, 2024. 
 
 ## Data Structure
 
@@ -27,12 +17,12 @@ Unless there is a compelling reason not to, we strongly encourage data users to 
 
 **SEVIS as a log of events**
 
-**SEVIS is NOT a person-centric database** and information about a given individual is often distributed across multiple rows. Instead, **each row represents a discrete event or status change for a person**. Most people undergo many different events related to their education and work logged in SEVIS, and have multiple rows with information about them. As is typical of administrative data, SEVIS record keeping is imperfect. However, a new record is usually created when:
+**SEVIS is NOT a person-centric database** and information about a given individual is often distributed across multiple rows. Instead, **each row represents a discrete event**. Most individuals undergo multiple different events related to their education or work, and have multiple corresponding records (rows) in SEVIS. For example, a new record may be created when:
 
 - Someone enters or exits the United States
 - Their visa status changes
-- They change educational programs or institutions
-- They begin or end work authorization (OPT/CPT)
+- They begin or change a course of study or school
+- They begin or change work authorization (OPT/CPT)
 - They change employers during OPT
 - Other administrative events occur (program extensions, status reinstatements, etc.)
 
@@ -42,9 +32,8 @@ Unless there is a compelling reason not to, we strongly encourage data users to 
 3. Enrolls in a Master's program at a different university in 2016 (→ Record 3)
 4. Begins OPT employment at Company A in 2017 (→ Record 4)
 5. Changes jobs to Company B during their OPT period in 2018 (→ Record 5)
-6. Leaves the U.S. at the end of their OPT authorization in 2019 (→ Record 6)
 
-**This single student would have at least 6 records, with "new" information found only a subset of the columns**. Some columns represent unchanging values and are constant across rows/records (e.g. `FIRST_ENTRY_DATE` or `COUNTRY_OF_BIRTH`). Other columns are the reason for the record's creation, and will vary between rows (e.g. `SCHOOL_NAME`, (OPT) `AUTHORIZATION_START_DATE`). See the Column Definitions section below for detailed notes on how we think columns do or do not vary across an individual's records.
+**This single student would have at least 5 records, with "new" information found in only a subset of the columns**. Some columns represent unchanging values and are constant across rows/records (e.g. `FIRST_ENTRY_DATE` or `COUNTRY_OF_BIRTH`). Other columns are the reason for the record's creation, and will vary between rows (e.g. `SCHOOL_NAME`, (OPT) `AUTHORIZATION_START_DATE`). See the Column Definitions section below for detailed notes on how we think columns do or do not vary across an individual's records.
 
 We have not verified whether information that ought to persist across rows always does, and avoid analyses where this would be a confounding factor. 
 
@@ -52,7 +41,7 @@ We have not verified whether information that ought to persist across rows alway
 
 **Identifying keys**
 
-There are two unique personal identifiers in the data, `STUDENT_KEY` and `INDIVIDUAL_KEY`. **INDIVIDUAL_KEY values are only unique WITHIN each year's file, NOT across years.** I.e. the same number may point to different individuals in different year's files. We use `INDIVIDUAL_KEY` to identify unique individuals within each year.
+There are two unique personal identifiers in the data, `STUDENT_KEY` and `INDIVIDUAL_KEY`. **INDIVIDUAL_KEY values are only unique WITHIN each year's file, NOT across years.** I.e. the same number will point to different individuals in different years' files. We use `INDIVIDUAL_KEY` to identify unique individuals within each year.
 
 **Note:** A single `INDIVIDUAL_KEY` can have multiple `STUDENT_KEY` values (e.g., if someone completes a Bachelor's and then a PhD, they would have the same `INDIVIDUAL_KEY` but different `STUDENT_KEY` values for each program). However, each `STUDENT_KEY` corresponds to only one `INDIVIDUAL_KEY`. 
 
@@ -67,7 +56,7 @@ This means:
 
 While the data provided is segmented into years, the metric which breaks it up is not described. That is, **we do not definitively know why any given record might appear in one year and not another**. 
 
-We act on the **assumption that:** for any given year's file, **if a student has any record in that year, ALL of their records appear in that year** — past, present, and future. Note that most data presented in the OPT Observatory only relies on the (more conservative) assumption that all of a student's records appear in their year of graduation.
+We act on the **assumption that:** for any given year's file, **if a student has any record in that year, ALL of their records appear in that year** — past, present, and future, up until October 5th, 2023. Note that most data presented in the OPT Observatory only relies on the (more conservative) assumption that all of a student's records appear in their year of graduation.
 
 **Example:** If the student described above graduates in 2016, then the `cleaned_2016_all.csv` file would include:
 - Their initial entry record from 2012
@@ -75,11 +64,13 @@ We act on the **assumption that:** for any given year's file, **if a student has
 - Their Master's program start record from 2016
 - Their OPT employment records from 2017
 - Their job change record from 2018
-- Their departure record from 2019
 
-**In other words:** The 2016 file contains their **complete SEVIS history**, not just events that occurred in 2016.
+**In other words:** We assume the 2016 file contains the **complete SEVIS history**, not just events that occurred in 2016, for people who were present in 2016.
 
 ## Known Data Quality Issues
+
+1. There are **important data quality issues in FY2004-2009 and in FY2023.** We do not recommend using these files at all. The FY2009 and FY2010 files are identical, and discontinuities in student enrollments and changes of status between 2008 and 2009 resolve the file labeled FY2008
+
 
 1. Extensive **missing data.** Many fields, especially ones related to employer location, are missing data.
 2. **Miscoded data,** e.g. first entry dates in the year 3000, or program end dates that are earlier than that program's start date. In general these are nullified, and not counted towards totals.
@@ -313,7 +304,7 @@ This data is provided by ICE without documentation. The following gives our best
     <td>Start date of academic program</td>
     <td>Date (YYYY-MM-DD)</td>
     <td>Variable</td>
-    <td>Different for each program/record</td>
+    <td>Refers to the start date of the student's academic program; different for each program/record</td>
   </tr>
   <tr>
     <td>20</td>
@@ -321,7 +312,7 @@ This data is provided by ICE without documentation. The following gives our best
     <td>End date of academic program</td>
     <td>Date (YYYY-MM-DD)</td>
     <td>Variable</td>
-    <td>Expected completion date at time of program start; different for each program/record</td>
+    <td>Expected completion date at time of program start; different for each program/record. Refers to the academic program completion date. Post-completion and STEM OPT starts after this date (graduation), while pre-completion OPT occurs before. OPT authorization start dates may be slightly before the program end date</td>
   </tr>
   <tr>
     <td>43</td>
@@ -450,7 +441,7 @@ This data is provided by ICE without documentation. The following gives our best
     <td>Type of OPT</td>
     <td>String (lowercase)</td>
     <td>Variable</td>
-    <td>Values: "post-completion", "pre-completion", or "stem"; individuals often have multiple types</td>
+    <td>Post-completion: Standard 12-month OPT available to all F-1 graduates after degree completion. STEM: Additional 24-month extension for STEM degree holders (total 36 months possible). Pre-completion: OPT used before graduation, comprising a small fraction of total OPT use, largely utilized by graduate students. Individuals often have multiple types across their records</td>
   </tr>
   <tr>
     <td>34</td>
@@ -490,40 +481,40 @@ This data is provided by ICE without documentation. The following gives our best
     <td><strong>TUITION_FEES</strong></td>
     <td>Annual tuition and fees (USD)</td>
     <td>Numeric</td>
-    <td>Variable</td>
-    <td>Self-reported or institutional data</td>
+    <td>Constant</td>
+    <td>Constant for a given STUDENT_KEY (program of study). Amounts suggest this is an annual quantity, but the specific year it applies to is unknown. Values typically vary when the same individual (INDIVIDUAL_KEY) pursues multiple programs. Self-reported or institutional data</td>
   </tr>
   <tr>
     <td>37</td>
     <td><strong>STUDENTS_PERSONAL_FUNDS</strong></td>
     <td>Student's personal funds (USD)</td>
     <td>Numeric</td>
-    <td>Variable</td>
-    <td>Financial support from student/family</td>
+    <td>Constant</td>
+    <td>Constant for a given STUDENT_KEY (program of study). Values may vary when the same individual (INDIVIDUAL_KEY) pursues multiple programs. Financial support from student/family</td>
   </tr>
   <tr>
     <td>38</td>
     <td><strong>FUNDS_FROM_THIS_SCHOOL</strong></td>
     <td>Funding from the institution (USD)</td>
     <td>Numeric</td>
-    <td>Variable</td>
-    <td>Scholarships, assistantships, etc.</td>
+    <td>Constant</td>
+    <td>Constant for a given STUDENT_KEY (program of study). Values may vary when the same individual (INDIVIDUAL_KEY) pursues multiple programs. Scholarships, assistantships, etc.</td>
   </tr>
   <tr>
     <td>39</td>
     <td><strong>FUNDS_FROM_OTHER_SOURCES</strong></td>
     <td>Funding from other sources (USD)</td>
     <td>Numeric</td>
-    <td>Variable</td>
-    <td>External scholarships, government funding, etc.</td>
+    <td>Constant</td>
+    <td>Constant for a given STUDENT_KEY (program of study). Values may vary when the same individual (INDIVIDUAL_KEY) pursues multiple programs. External scholarships, government funding, etc.</td>
   </tr>
   <tr>
     <td>40</td>
     <td><strong>ON_CAMPUS_EMPLOYMENT</strong></td>
     <td>Likely earnings from on-campus employment (USD)</td>
     <td>Numeric</td>
-    <td>Variable</td>
-    <td>Interpretation uncertain; may be 0.0 or blank if no on-campus work</td>
+    <td>Constant</td>
+    <td>Constant for a given STUDENT_KEY (program of study). Interpretation uncertain; may be 0.0 or blank if no on-campus work</td>
   </tr>
 </tbody>
 </table>
@@ -548,7 +539,7 @@ This data is provided by ICE without documentation. The following gives our best
     <td>Requested change of visa status</td>
     <td>String</td>
     <td>Variable</td>
-    <td>Change of status from F-1 to another visa type; codes are generally self-explanatory (e.g., "o1a"). H-1B variants: "1b1" and "h1b" are regular H-1Bs, "1b2" is H-1B2, "1b3" is H-1B3, "hsc" is H-1B1; typically constant across individual's rows</td>
+    <td>Change of status from F-1 to another visa type; codes are generally self-explanatory (e.g., "o1a"). H-1B variants: "1b1" and "h1b" are regular H-1Bs, "1b2" is H-1B2, "1b3" is H-1B3, "hsc" is H-1B1; constant across all rows for a unique INDIVIDUAL_KEY in 99.8% of cases</td>
   </tr>
   <tr>
     <td>42</td>
@@ -556,7 +547,7 @@ This data is provided by ICE without documentation. The following gives our best
     <td>Not reliable; interpretation unclear</td>
     <td>String (lowercase)</td>
     <td>Variable</td>
-    <td>Values: "completed", "deactivated", "terminated", "active", "canceled"</td>
+    <td>Values: "completed", "deactivated", "terminated", "active", "canceled"; constant across all rows for a unique INDIVIDUAL_KEY in 96% of cases</td>
   </tr>
 </tbody>
 </table>

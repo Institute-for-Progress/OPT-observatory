@@ -1,0 +1,20 @@
+# ==============================================================================
+# Python Dependencies for OPT Observatory
+# ==============================================================================
+# Install with: pip install -r requirements.txt
+# ==============================================================================
+
+# Jupyter notebook environment
+jupyter>=1.0.0
+
+# DuckDB database engine (works with large CSV files)
+duckdb>=0.10.0
+
+# Data manipulation and visualization
+pandas>=2.0.0
+
+# Fuzzy string matching (for ITIC name matching)
+rapidfuzz>=3.0.0
+
+# Progress bars for long-running operations
+tqdm>=4.65.0
