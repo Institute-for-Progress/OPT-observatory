@@ -2,11 +2,11 @@
 
 Analysis pipeline for F-1 student OPT (Optional Practical Training) participation patterns using SEVIS data.
 
-## 📊 Overview
+## Overview
 
-This repository provides a reproducible analysis pipeline for studying F-1 international student transitions to Optional Practical Training (OPT) employment in the United States. The analysis uses SEVIS (Student and Exchange Visitor Information System) data obtained through FOIA requests.
+Reproducible analysis pipeline for studying F-1 international student transitions to Optional Practical Training (OPT) employment in the United States. The analysis uses SEVIS (Student and Exchange Visitor Information System) data obtained through FOIA requests.
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Clone Repository
 
@@ -45,7 +45,7 @@ This script:
 - Installs R packages using renv (reproducible package management)
 
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```
 OPT-observatory/
@@ -66,7 +66,7 @@ OPT-observatory/
     └── load_data_parallel.R      # Data cleaning script (for transparency)
 ```
 
-## 🔧 Prerequisites
+## Prerequisites
 
 ### Required Software
 
@@ -83,7 +83,7 @@ All R packages are managed by **renv** and installed automatically by `setup.sh`
 - fs - File system operations
 - future/future.apply - Parallel processing
 
-## 📖 Data
+## Data
 
 ### SEVIS F-1 Data
 
@@ -115,15 +115,15 @@ FOIA request to U.S. Department of Homeland Security / Student and Exchange Visi
    - Joins HUD crosswalk with LMA data
    - Time-aware mapping for accurate geographic attribution
 
-## 🔄 Reproducing the Data Cleaning (Optional)
+## Reproducing the Data Cleaning (Optional)
 
-The data bundle includes both **raw** and **cleaned** files for transparency. See [Data Processing](docs/data_processing.md) to read more about the cleaning process. If you want to verify it by generating the clean files yourself run the cleaning script `scripts/load_data_parallel.R` on the raw files:
+The data bundle includes both **raw** and **cleaned** files for transparency. To read more about the cleaning process, see [Data Processing](docs/data_processing.md). To verify by generating the clean files yourself, run the cleaning script `scripts/load_data_parallel.R` on the raw files:
    
    ```bash
    Rscript scripts/load_data_parallel.R
    ```
 
-## 📝 Citation
+## Citation
 
 If you use this data or code, please cite:
 

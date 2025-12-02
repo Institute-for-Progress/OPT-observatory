@@ -33,7 +33,7 @@ The original raw data from ICE is available to download here. It is also availab
 4. Begins OPT employment at Company A in 2017 (→ Record 4)
 5. Changes jobs to Company B during their OPT period in 2018 (→ Record 5)
 
-**This single student would have at least 5 records, with "new" information found in only a subset of the columns**. Some columns represent unchanging values and are constant across rows/records (e.g. `FIRST_ENTRY_DATE` or `COUNTRY_OF_BIRTH`). Other columns are the reason for the record's creation, and will vary between rows (e.g. `SCHOOL_NAME` or `OPT_AUTHORIZATION_START_DATE`). See the Column Definitions section below for detailed notes on how we think columns do or do not vary across an individual's records.
+**This single student would have at least 5 records, with "new" information found in only a subset of the columns**. Some columns represent unchanging values and are constant across rows/records (e.g. `FIRST_ENTRY_DATE` or `COUNTRY_OF_BIRTH`). Other columns are the reason for the record's creation, and will vary between rows (e.g. `SCHOOL_NAME` or `OPT_AUTHORIZATION_START_DATE`). The Column Definitions section includes detailed notes on whether columns vary across an individual's records.
 
 We have not verified whether information that ought to persist across rows always does, and avoid analyses where this would be a confounding factor. 
 
@@ -43,9 +43,7 @@ We have not verified whether information that ought to persist across rows alway
 
 There are two unique personal identifiers in the data, `STUDENT_KEY` and `INDIVIDUAL_KEY`. **INDIVIDUAL_KEY values are only unique WITHIN each year's file, NOT across years.** I.e. the same number will point to different individuals in different years' files. We use `INDIVIDUAL_KEY` to identify unique individuals within each year.
 
-**Note:** A single `INDIVIDUAL_KEY` can have multiple `STUDENT_KEY` values (e.g., if someone completes a Bachelor's and then a PhD, they would have the same `INDIVIDUAL_KEY` but different `STUDENT_KEY` values for each program). However, each `STUDENT_KEY` corresponds to only one `INDIVIDUAL_KEY`. 
-
-This means:
+**Note:** A single `INDIVIDUAL_KEY` can have multiple `STUDENT_KEY` values (e.g., if someone completes a Bachelor's and then a PhD, they would have the same `INDIVIDUAL_KEY` but different `STUDENT_KEY` values for each program). However, each `STUDENT_KEY` corresponds to only one `INDIVIDUAL_KEY`.
 
 - Within `cleaned_2015_all.csv`, all records with `INDIVIDUAL_KEY = 12345` represent the same person
 - You can trace that person's complete history (all their records) within the 2015 file
@@ -87,8 +85,7 @@ The file labeled FY2023 is the smallest of any year's data, and produces unbelie
 
 ## Column Definitions
 
-
-Data provided by ICE was not accompanied by documentation, the following is our best working interpretation of each variable in the data. Please contact the authors if you have further information.
+Data provided by ICE was not accompanied by documentation. Our best working interpretation of each variable in the data appears below. Please contact the authors if you have further information.
 
 ### Table Column Meanings
 
@@ -216,7 +213,6 @@ See SEVIS Help Hub → Student Records → Update Student Records → Financial 
 - Must be part of the academic curriculum
 - Can be full-time or part-time
 - Does not count toward OPT eligibility (if part-time)
-- Full-time CPT for 12+ months may disqualify student from OPT
 
 **In this dataset:**
 
@@ -279,9 +275,7 @@ We have not verified whether information that ought to persist across rows alway
 
 There are two unique personal identifiers in the data, `STUDENT_KEY` and `INDIVIDUAL_KEY`. **INDIVIDUAL_KEY values are only unique WITHIN each year's file, NOT across years.** I.e. the same number will point to different individuals in different years' files. We use `INDIVIDUAL_KEY` to identify unique individuals within each year.
 
-**Note:** A single `INDIVIDUAL_KEY` can have multiple `STUDENT_KEY` values (e.g., if someone completes a Bachelor's and then a PhD, they would have the same `INDIVIDUAL_KEY` but different `STUDENT_KEY` values for each program). However, each `STUDENT_KEY` corresponds to only one `INDIVIDUAL_KEY`. 
-
-This means:
+**Note:** A single `INDIVIDUAL_KEY` can have multiple `STUDENT_KEY` values (e.g., if someone completes a Bachelor's and then a PhD, they would have the same `INDIVIDUAL_KEY` but different `STUDENT_KEY` values for each program). However, each `STUDENT_KEY` corresponds to only one `INDIVIDUAL_KEY`.
 
 - Within `cleaned_2015_all.csv`, all records with `INDIVIDUAL_KEY = 12345` represent the same person
 - You can trace that person's complete history (all their records) within the 2015 file
