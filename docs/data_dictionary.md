@@ -232,6 +232,7 @@ If you identify new data quality issues or have questions about the data, please
 ## Related Documentation
 - [Data Processing Guide](data_processing.md) - How to run the cleaning script
 - [Readme](../README.md) - Project overview and getting started
+- [Data download link](https://drive.google.com/file/d/1trvgI1NOojxN6oFB0eRfwvIZ62rNiFpS/view?usp=sharing)
 
 <!-- # Data Dictionary
 

@@ -19,7 +19,7 @@ cd OPT-observatory
 
 Download the data bundle from Google Drive:
 
-- **Link:** [Will be added after upload]
+- **Link:** https://drive.google.com/file/d/1trvgI1NOojxN6oFB0eRfwvIZ62rNiFpS/view?usp=sharing
 - **Size:** ~50 GB (compressed)
 - **Contents:**
   - Raw SEVIS F-1 data (2004-2023)
