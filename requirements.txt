@@ -1,5 +1,5 @@
 # ==============================================================================
-# Python Dependencies for OPT Observatory
+# Python Dependencies for writing cleaned OPT Observatory data files
 # ==============================================================================
 # Install with: pip install -r requirements.txt
 # ==============================================================================

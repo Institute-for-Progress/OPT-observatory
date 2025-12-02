@@ -14,3 +14,4 @@ staging/*.parquet
 
 # Keep supporting data (small enough for Git or Git LFS)
 !supporting/*.csv
+data/supporting/itic_member_name_variants.csv
