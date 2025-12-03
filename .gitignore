@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+data/*
+docs/data_dictionary_files/*
+notebooks/research/*
+docs/data_processing_files/*
+docs/data_processing.html
+docs/data_dictionary.html
+notebooks/*
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# R
+.Rhistory
+.RData
+.Rproj.user
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data files (large - not in Git, download from Zenodo)
+data/raw/*.csv
+data/cleaned/*.csv
+data/*.parquet
+data/staging/
+data/dta/
+
+# Keep directory structure
+!data/raw/.gitkeep
+!data/cleaned/.gitkeep
+!data/staging/.gitkeep
+
+# Supporting data is small enough for Git
+!data/supporting/
+
+# Output
+*.log
+.Rproj.user
