@@ -20,24 +20,27 @@ If you use the raw data, we ask that you acknowledge IFP’s role in obtaining i
 
 ``` U.S. Immigration and Customs Enforcement. Student and Exchange Visitor Information System (SEVIS). Data requested by the Institute for Progress under the Freedom of Information Act, public release #43657, published October 1st 2024. ```
 
-## Repository Structure [to do]
+## Repository Structure
 
 ```
 OPT-observatory/
 ├── README.md                     # This file
-├── setup.sh                      # Install R dependencies
+├── setup.sh                      # Install R and Python dependencies
 ├── renv.lock                     # R package versions (reproducibility)
-├── data/                         # Downloaded from Zenodo (not in Git)
-│   ├── raw/                      # Raw SEVIS FOIA files (20 CSV files, ~25 GB)
-│   ├── cleaned/                  # Pre-cleaned files (20 CSV files, ~24 GB)
-│   ├── supporting/               # Supporting datasets (~500 MB)
-│   │   ├── dhs_stem_cip_code_list_July2024.csv
-│   │   ├── cip_code_to_nsf_subject_field_mapping.csv
-│   │   ├── working_pop_by_county_fips_2004-2023.csv
-│   │   ├── HUD_zip_code_to_county_crosswalk_2010-2024.csv
-│   │   └── zip_county_lma_quarterly.csv
-└── scripts/
-    └── load_data_parallel.R      # Data cleaning script (for transparency)
+├── requirements.txt              # Python package requirements
+├── data/                         # Downloaded from Google Drive (not in Git)
+│   ├── raw/
+│   │   ├── USE_corrected_file_names/      # Raw SEVIS files with corrected names (20 CSV files)
+│   │   └── AVOID_uncorrected_file_names/  # Original files (do not use)
+│   ├── cleaned_corrected_file_names/      # Pre-cleaned files (20 CSV files)
+│   ├── data_dictionary.md        # Data dictionary
+│   └── data_processing.md        # Processing documentation
+└── misc/                         # Internal code and configuration
+    ├── code/
+    │   ├── load_data_parallel.R  # Data cleaning script
+    │   └── data_loader.py        # Python data loading utilities
+    ├── supporting_data.zip       # Supporting datasets (crosswalks, etc.)
+    └── sevis_data_processing_config.json
 ```
 
 ## Reproducing the Data Cleaning (Optional)
@@ -59,10 +62,11 @@ Extract the data:
 ```bash
 # Download data.zip from link above
 unzip data.zip
-# This creates the data/ folder with raw/, cleaned/, and supporting/ subdirectories
+# This creates the data/ folder with raw/ (corrected and uncorrected versions),
+# cleaned_corrected_file_names/, and documentation files
 ```
 
-### 3. Install Dependencies (Python + R)
+### 3. Install Dependencies (R, optionally Python)
 
 ```bash
 ./setup.sh
@@ -73,13 +77,14 @@ This script:
 - Installs Python packages 
 - Installs R packages using renv (reproducible package management)
 
+The data bundle includes both **raw** and **cleaned** files for transparency. To read more about the cleaning process, see [Data Processing](data/data_processing.md). To run the cleaning script `misc/code/load_data_parallel.R` on the raw files use:
 
-
-The data bundle includes both **raw** and **cleaned** files for transparency. To read more about the cleaning process, see [Data Processing](docs/data_processing.md). To run the cleaning script `scripts/load_data_parallel.R` on the raw files use:
-   
    ```bash
-   Rscript scripts/load_data_parallel.R
+   Rscript misc/code/load_data_parallel.R
    ```
+
+### 4. If Using Python
+See `misc/code/data_loader.py` for a pre-written data loading function that may simplify further analyses.
 
 ## How to Reach Us
 Please contact violet@ifp.org with any questions about the contents of this repository or the OPT Observatory, to note further data issues, or share findings from work using this data.
