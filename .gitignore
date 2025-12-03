@@ -11,6 +11,9 @@ venv/
 dist/
 build/
 data/*
+!data/data_dictionary.md
+!data/data_processing.md
+data/*.zip
 docs/data_dictionary_files/*
 notebooks/research/*
 docs/data_processing_files/*
