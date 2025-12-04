@@ -3,7 +3,7 @@
 The Institute for Progress obtained detailed microdata excerpted from the Student and Exchange Visitor Information System (SEVIS), including information on the study and work patterns of all F-1 international students and J-1 exchange visitors in the United States from fiscal years 2004-2023. The data was requested from U.S. Immigration and Customs Enforcement (ICE) under the Freedom of Information Act (FOIA). 
 
 ## Using the Data
-- [Download the clean data](https://drive.google.com/file/d/1trvgI1NOojxN6oFB0eRfwvIZ62rNiFpS/view?usp=sharing) (~25GB). We strongly recommend using the cleaned files.
+- [Download the clean data](https://drive.google.com/drive/folders/1jHyayPqwMN969gPJoEs7t0wAsZcpwzC7?usp=sharing) (~25GB). We strongly recommend using the cleaned files.
 - Read the [data dictionary](data/data_dictionary.md), which describes the cleaned data to the best of our ability, as it was not accompanied by any official documentation
 - See the [data processing documentation](data/data_processing.md) for detailed information on how we produced both annual raw and cleaned files.
 
@@ -43,7 +43,9 @@ OPT-observatory/
 
 ## Using Our Analysis
 
-Although our cleaned data is made available [here](https://drive.google.com/file/d/1trvgI1NOojxN6oFB0eRfwvIZ62rNiFpS/view?usp=sharing) , users may want to clean the raw data themselves to independently verify or make modifications to our work. To run our analysis:
+Although our cleaned data is made available [here](https://drive.google.com/drive/folders/1jHyayPqwMN969gPJoEs7t0wAsZcpwzC7?usp=sharing), we are making the raw data available for transparency. We do not recommend users download this unless they intend to replicate our data cleaning process.
+
+To run our analysis:
 
 ### 1. Clone the Repository
 
@@ -54,7 +56,7 @@ cd OPT-observatory
 
 ### 2. Download the Data
 
-Download the [data bundle](https://drive.google.com/file/d/1trvgI1NOojxN6oFB0eRfwvIZ62rNiFpS/view?usp=sharing) from Google Drive and put it in the `data` folder:
+Download the [full data bundle including the raw data](https://drive.google.com/drive/folders/1RVCzAf6B8QIvd37PESSkKebhoi9psbFY?usp=share_link) from Google Drive and put it in the `data` folder:
 
 Extract the data:
 ```bash
