@@ -56,7 +56,7 @@ cd OPT-observatory
 
 ### 2. Download the Data
 
-Download the [full data bundle](https://drive.google.com/drive/folders/1jHyayPqwMN969gPJoEs7t0wAsZcpwzC7?usp=sharing) (~75GB) from Google Drive and put it in the `data` folder:
+Download the [full data bundle](https://drive.google.com/drive/folders/1RVCzAf6B8QIvd37PESSkKebhoi9psbFY?usp=share_link) (~75GB) from Google Drive and put it in the `data` folder:
 
 Extract the data:
 ```bash
