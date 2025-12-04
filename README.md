@@ -1,12 +1,9 @@
-# Student and Exchange Visitor Information System (SEVIS): F-1 \& J-1 Study and Employment Data, FY2004-2023 
+# Student and Exchange Visitor Information System (SEVIS): F-1 \& J-1 Study and Employment Data, FY2005-2022
 
 The Institute for Progress obtained detailed microdata excerpted from the Student and Exchange Visitor Information System (SEVIS), including information on the study and work patterns of all F-1 international students and J-1 exchange visitors in the United States from fiscal years 2004-2023. The data was requested from U.S. Immigration and Customs Enforcement (ICE) under the Freedom of Information Act (FOIA). 
 
-## Background
-This data was originally obtained and is available to download from the ICE FOIA library in 13 parts (see release #43657, dated October 1st 2024). In the original release, each year of data contained multiple sub-component files. Our raw data aggregates these to a single file per year (but does not otherwise modify them). While we include the original data's files for both F-1 international students and J-1 exchange visitors, the documentation we provide focuses only on the F-1 data, which underlies the [OPT Observatory](https://optobservatory.org/).
-
 ## Using the Data
-- [Download the clean data](https://drive.google.com/drive/folders/1jHyayPqwMN969gPJoEs7t0wAsZcpwzC7?usp=sharing) (~25GB). We strongly recommend using the cleaned files.
+- [Download the clean data](https://drive.google.com/file/d/1trvgI1NOojxN6oFB0eRfwvIZ62rNiFpS/view?usp=sharing) (~25GB). We strongly recommend using the cleaned files.
 - Read the [data dictionary](data/data_dictionary.md), which describes the cleaned data to the best of our ability, as it was not accompanied by any official documentation
 - See the [data processing documentation](data/data_processing.md) for detailed information on how we produced both annual raw and cleaned files.
 
@@ -20,6 +17,7 @@ If you use the raw data, we ask that you acknowledge IFP’s role in obtaining i
 
 ``` U.S. Immigration and Customs Enforcement. Student and Exchange Visitor Information System (SEVIS). Data requested by the Institute for Progress under the Freedom of Information Act, public release #43657, published October 1st 2024. ```
 
+
 ## Repository Structure
 
 ```
@@ -30,7 +28,7 @@ OPT-observatory/
 ├── requirements.txt              # Python package requirements
 ├── data/                         # Downloaded data.zip from Google Drive and open here
 │   ├── raw/                               # We strongly recommend against using the raw data
-│   │   ├── USE_THESE__corrected_file_names/      # Annually aggregated raw files with corrected years
+│   │   ├── USE_corrected_file_names/      # Annually aggregated raw files with corrected years
 │   │   └── AVOID_uncorrected_file_names/  # Incorrectly named, annually aggregated raw files as labeled by ICE (do not use)
 │   ├── cleaned_corrected_file_names/      # Cleaned, correctly named, annually aggregated data files 
 │   ├── data_dictionary.md        # Data dictionary
@@ -45,7 +43,7 @@ OPT-observatory/
 
 ## Using Our Analysis
 
-Although our cleaned data is made available [here](https://drive.google.com/drive/folders/1jHyayPqwMN969gPJoEs7t0wAsZcpwzC7?usp=sharing), users may want to clean the raw data themselves to independently verify or make modifications to our work. To run our analysis:
+Although our cleaned data is made available [here](https://drive.google.com/file/d/1trvgI1NOojxN6oFB0eRfwvIZ62rNiFpS/view?usp=sharing) , users may want to clean the raw data themselves to independently verify or make modifications to our work. To run our analysis:
 
 ### 1. Clone the Repository
 
@@ -56,7 +54,7 @@ cd OPT-observatory
 
 ### 2. Download the Data
 
-Download the [full data bundle](https://drive.google.com/drive/folders/1RVCzAf6B8QIvd37PESSkKebhoi9psbFY?usp=share_link) (~75GB) from Google Drive and put it in the `data` folder:
+Download the [data bundle](https://drive.google.com/file/d/1trvgI1NOojxN6oFB0eRfwvIZ62rNiFpS/view?usp=sharing) from Google Drive and put it in the `data` folder:
 
 Extract the data:
 ```bash
