@@ -6,7 +6,7 @@ The Institute for Progress obtained detailed microdata excerpted from the Studen
 This data was originally obtained and is available to download from the ICE FOIA library in 13 parts (see release #43657, dated October 1st 2024). In the original release, each year of data contained multiple sub-component files. Our raw data aggregates these to a single file per year (but does not otherwise modify them). While we include the original data's files for both F-1 international students and J-1 exchange visitors, the documentation we provide focuses only on the F-1 data, which underlies the [OPT Observatory](https://optobservatory.org/).
 
 ## Using the Data
-- [Download the data](https://drive.google.com/file/d/1trvgI1NOojxN6oFB0eRfwvIZ62rNiFpS/view?usp=sharing). We strongly recommend using the cleaned files in `cleaned_corrected_file_names`.
+- [Download the clean data](https://drive.google.com/drive/folders/1jHyayPqwMN969gPJoEs7t0wAsZcpwzC7?usp=sharing). We strongly recommend using the cleaned files.
 - Read the [data dictionary](data/data_dictionary.md), which describes the cleaned data to the best of our ability, as it was not accompanied by any official documentation
 - See the [data processing documentation](data/data_processing.md) for detailed information on how we produced both annual raw and cleaned files.
 
@@ -45,7 +45,7 @@ OPT-observatory/
 
 ## Using Our Analysis
 
-Although our cleaned data is made available [here](https://drive.google.com/file/d/1trvgI1NOojxN6oFB0eRfwvIZ62rNiFpS/view?usp=sharing), users may want to clean the raw data themselves to independently verify or make modifications to our work. To run our analysis:
+Although our cleaned data is made available [here](https://drive.google.com/drive/folders/1jHyayPqwMN969gPJoEs7t0wAsZcpwzC7?usp=sharing), users may want to clean the raw data themselves to independently verify or make modifications to our work. To run our analysis:
 
 ### 1. Clone the Repository
 
@@ -56,7 +56,7 @@ cd OPT-observatory
 
 ### 2. Download the Data
 
-Download the [data bundle](https://drive.google.com/file/d/1trvgI1NOojxN6oFB0eRfwvIZ62rNiFpS/view?usp=sharing) from Google Drive and put it in the `data` folder:
+Download the [full data bundle](https://drive.google.com/drive/folders/1jHyayPqwMN969gPJoEs7t0wAsZcpwzC7?usp=sharing) (~75GB) from Google Drive and put it in the `data` folder:
 
 Extract the data:
 ```bash
