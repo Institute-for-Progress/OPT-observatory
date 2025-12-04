@@ -1092,14 +1092,14 @@ check_directory_headers <- function(dir_path, exclude_cols = DEFAULT_EXCLUDE_COL
 
 # Example usage - configured for OPT Observatory repository
 result <- combine_and_clean_data_optimized(
-  root_dir = "/Users/violet/Library/CloudStorage/GoogleDrive-violet@ifp.org/Shared drives/DataDrive/raw/sevis_data/F-1",
-  raw_output_dir = "/Users/violet/Desktop/repos/OPT-observatory/data/raw/USE_THESE__corrected_file_names",
+  root_dir = "/Users/violet/Library/CloudStorage/GoogleDrive-violet@ifp.org/Shared drives/DataDrive/raw/sevis_data/F-1/F-1_raw",
+  raw_output_dir = "/Users/violet/Desktop/repos/OPT-observatory/data/raw/USE_THESE__uncorrected_file_names",
   clean_output_dir = "/Users/violet/Desktop/repos/OPT-observatory/data/cleaned_corrected_file_names",
   write_raw_files = FALSE,  # Raw files already exist in data/raw
   write_clean_files = TRUE,
   exclude_cols = DEFAULT_EXCLUDE_COLS,
   verbose = TRUE,
-  year_range = c(2004:2023),  # TEST: verify employer ZIP fix
+  year_range = c(2005:2022),  # TEST: verify employer ZIP fix
   keep_cpt = TRUE,
   historic_cutoff = "1980-01-01"  # Nullify dates before 1980
 )
