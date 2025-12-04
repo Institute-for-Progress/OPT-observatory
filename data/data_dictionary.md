@@ -4,7 +4,7 @@ This page describes the structure and content of the data underlying the Institu
 
 ## Data Access
 - [Download the cleaned data](https://drive.google.com/drive/folders/1jHyayPqwMN969gPJoEs7t0wAsZcpwzC7?usp=sharing)(~25 GB)
-- The raw and cleaned data can be downloaded [here](https://drive.google.com/file/d/1trvgI1NOojxN6oFB0eRfwvIZ62rNiFpS/view?usp=sharing)(~75 GB). This includes both the cleaned data, and two sets of raw data (both the original from SEVIS and a corrected version—see the Data Mislabeling section below for more information). This is available for transparency and replicability for use with the OPT-Observatory Github repository, but we do not recommend users download this unless they intend to replicate our data cleaning process.
+- The raw and cleaned data can be downloaded [here](https://drive.google.com/drive/folders/1RVCzAf6B8QIvd37PESSkKebhoi9psbFY?usp=share_link)(~75 GB). This includes both the cleaned data, and two sets of raw data (both the original from SEVIS and a corrected version—see the Data Mislabeling section below for more information). This is available for transparency and replicability for use with the OPT-Observatory Github repository, but we do not recommend users download this unless they intend to replicate our data cleaning process.
 
 The raw data was originally obtained via the ICE FOIA library in 13 parts (see release #43657, dated October 1st 2024). In the original release, each year of data contained multiple sub-component files. Our raw data aggregates these to a single file per year (but does not otherwise modify them). For more information on data processing, see the [Data Processing Guide](data_processing.md). 
 
