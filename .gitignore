@@ -59,3 +59,7 @@ data/dta/
 # Output
 *.log
 .Rproj.user
+
+# Quarto/README generated files
+README.html
+README_files/
