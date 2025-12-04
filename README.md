@@ -30,7 +30,7 @@ OPT-observatory/
 ├── requirements.txt              # Python package requirements
 ├── data/                         # Downloaded data.zip from Google Drive and open here
 │   ├── raw/                               # We strongly recommend against using the raw data
-│   │   ├── USE_corrected_file_names/      # Annually aggregated raw files with corrected years
+│   │   ├── USE_THESE__corrected_file_names/      # Annually aggregated raw files with corrected years
 │   │   └── AVOID_uncorrected_file_names/  # Incorrectly named, annually aggregated raw files as labeled by ICE (do not use)
 │   ├── cleaned_corrected_file_names/      # Cleaned, correctly named, annually aggregated data files 
 │   ├── data_dictionary.md        # Data dictionary

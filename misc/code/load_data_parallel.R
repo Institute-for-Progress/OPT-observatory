@@ -39,7 +39,7 @@ cat("Using", nbrOfWorkers(), "workers for parallel processing\n")
 
 # ---- load-configuration ------------------------------------------------------
 # Load configuration from external JSON file for consistency across projects
-CONFIG_PATH <- "data/supporting/sevis_data_processing_config.json"
+CONFIG_PATH <- "misc/sevis_data_processing_config.json"
 
 if (!file.exists(CONFIG_PATH)) {
   stop("Configuration file not found: ", CONFIG_PATH)
@@ -1093,8 +1093,8 @@ check_directory_headers <- function(dir_path, exclude_cols = DEFAULT_EXCLUDE_COL
 # Example usage - configured for OPT Observatory repository
 result <- combine_and_clean_data_optimized(
   root_dir = "/Users/violet/Library/CloudStorage/GoogleDrive-violet@ifp.org/Shared drives/DataDrive/raw/sevis_data/F-1",
-  raw_output_dir = "/Users/violet/Desktop/repos/OPT-observatory/data/raw",
-  clean_output_dir = "/Users/violet/Desktop/repos/OPT-observatory/data/cleaned",
+  raw_output_dir = "/Users/violet/Desktop/repos/OPT-observatory/data/raw/USE_THESE__corrected_file_names",
+  clean_output_dir = "/Users/violet/Desktop/repos/OPT-observatory/data/cleaned_corrected_file_names",
   write_raw_files = FALSE,  # Raw files already exist in data/raw
   write_clean_files = TRUE,
   exclude_cols = DEFAULT_EXCLUDE_COLS,

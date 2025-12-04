@@ -6,9 +6,10 @@ The `load_data_parallel.R` script cleans and transforms the raw excerpts from th
 
 Processing pipeline for the data:
 
-1. **Raw FOIA data**: Original Excel files, multiple per year
-2. **Combined by year**: All Excel files for a given year combined into a single CSV by standardizing their headers (e.g., `2004_all.csv`)
-3. **Cleaned data**: An extensively cleaned single CSV file for each year (e.g., `cleaned_2004_all.csv`)
+1. **Raw FOIA data**: Original Excel files, multiple per year (from ICE FOIA release #43657)
+2. **Combined by year**: All Excel files for a given year combined into a single CSV by standardizing their headers (output: `data/raw/AVOID_THESE__uncorrected_file_names/YYYY_all.csv`)
+3. **Manual year correction**: Files from step 2 were manually copied and renamed to correct the year mislabeling issue (output: `data/raw/USE_THESE__corrected_file_names/YYYY_all.csv`)
+4. **Cleaned data**: An extensively cleaned single CSV file for each year using the corrected year labels (output: `data/cleaned_corrected_file_names/cleaned_YYYY_all.csv`)
 
 Each step of the cleaning process for F-1 SEVIS microdata from this release is detailed below. Please contact the authors of the repository with any questions or to raise suspected errors.
 
@@ -47,14 +48,48 @@ Each step of the cleaning process for F-1 SEVIS microdata from this release is d
 
 **SEVIS (Student and Exchange Visitor Information System)** tracks international students and exchange visitors in F, M, and J US visa categories. The data cleaned here includes annually grouped records of international students (F-1 holders).
 
-**Data Quality Note**: Upon analysis we found several major issues with the data release:
-1. FY2023 data is likely incomplete. The file is less than half the size of other files, and produced implausibly low values that are out of step with data reported by DHS. We are unaware of an explanation for the missing data, and strongly suspect this truncation is in error.
-2. FY2008 and FY2009 files are identical. This is implausible, and nearly certainly in error. 
-3. Counts of active international students from 2004-2023 demonstrate a severe discontinuity between 2008 and 2009. This is unreflected in other reporting on SEVIS data, and resolves when data from the period from FY2005-2009 is analyzed as if it were actually the data for FY2004-2008. We suspect that the true FY2009 is absent from this release, and that the data labeled as both FY2008 and FY2009 is actually from FY2008, and each year preceeding fiscal year is mislabeled as one fiscal year higher than is truly the case. 
-
-Due both to the errors above, and generally poor data availability for values relevant to the OPT Observatory (e.g. employer locations), we consider only data from 2010-2022 as reliable.
+**Data Quality Note**: This SEVIS data release contains several significant quality issues including year mislabeling and incomplete data. For detailed information, see:
+- [Data Mislabeling](data_dictionary.md#data-mislabeling) - Explains the year labeling issue and why corrected file names are provided
+- [Known Data Quality Issues](data_dictionary.md#known-data-quality-issues) - Documents missing data, miscoded values, and FY2023 truncation issues
 
 **For detailed information** about data structure, column definitions, and how records are organized, see the **[Data Dictionary](data_dictionary.md)**.
+
+## File Organization and Manual Year Correction
+
+### Processing Stages and Directory Structure
+
+The data processing involves multiple stages, with files organized across different directories:
+
+**Stage 1: Raw Combined Files (Script-Generated)**
+- **Location**: `data/raw/AVOID_THESE__uncorrected_file_names/`
+- **Created by**: `load_data_parallel.R` (Mode 1: Raw File Combination)
+- **Contents**: Yearly CSV files using the original ICE year labels (e.g., `2004_all.csv`, `2005_all.csv`, etc.)
+- **Issue**: These files contain the year mislabeling issue described in the [Data Dictionary](data_dictionary.md#data-mislabeling)
+
+**Stage 2: Corrected Raw Files (Manually Renamed)**
+- **Location**: `data/raw/USE_THESE__corrected_file_names/`
+- **Created by**: Manual file copying and renaming
+- **Contents**: Copies of Stage 1 files with corrected year labels (e.g., what was labeled `2004_all.csv` is now `2005_all.csv`)
+- **Why**: Corrects the off-by-one year labeling error in files FY2004-2008 (which actually contain data for FY2005-2009)
+
+**Stage 3: Cleaned Files (Script-Generated from Stage 2)**
+- **Location**: `data/cleaned_corrected_file_names/`
+- **Created by**: `load_data_parallel.R` (Mode 2: Data Cleaning) using Stage 2 files as input
+- **Contents**: Extensively cleaned yearly CSV files with corrected year labels (e.g., `cleaned_2005_all.csv`)
+
+### Important: Always Use Corrected File Names
+
+**For any analysis, use files from:**
+- `data/raw/USE_THESE__corrected_file_names/` (if using raw data)
+- `data/cleaned_corrected_file_names/` (recommended for most analyses)
+
+**Why this matters:** Using the uncorrected file names will result in analyses that show discontinuities and implausible patterns in the pre-2010 period. The corrected file names align with patterns observed in other DHS reporting.
+
+**Note:** The `load_data_parallel.R` script (lines 1094-1105) is already configured to use the corrected file paths for cleaning operations.
+
+### Configuration File Location
+
+The script loads its configuration from `misc/sevis_data_processing_config.json`, which defines column exclusions, state abbreviations, and date validation rules.
 
 ## Main Function: `combine_and_clean_data_optimized()`
 
@@ -145,9 +180,12 @@ Run both modes sequentially to go directly from raw source files to cleaned outp
 - **Type**: String (file path)
 - **Purpose**: Output directories for different processing stages
 - **Note**: Can be NULL if corresponding flag is FALSE
+- **Recommended paths**:
+  - Raw: `data/raw/USE_THESE__corrected_file_names/`
+  - Clean: `data/cleaned_corrected_file_names/`
 - **Output naming convention**:
-  - Raw: `YYYY_all.csv`
-  - Clean: `cleaned_YYYY_all.csv`
+  - Raw files: `YYYY_all.csv` (e.g., `2020_all.csv`)
+  - Clean files: `cleaned_YYYY_all.csv` (e.g., `cleaned_2020_all.csv`)
 
 ### `write_raw_files` and `write_clean_files`
 - **Type**: Boolean
@@ -192,7 +230,7 @@ Run both modes sequentially to go directly from raw source files to cleaned outp
 
 **Why this matters:** Raw SEVIS data has inconsistent column naming (spaces, punctuation, mixed case). Standardization ensures consistent references across files and analyses.
 
-**How it works** (lines 235-242 in load_data_parallel.R):
+**How it works** (lines 325-332 in load_data_parallel.R):
 1. Trims whitespace
 2. Removes ampersands (&) and apostrophes (')
 3. Converts periods (.) and hyphens (-) to underscores (_)
@@ -210,7 +248,7 @@ Run both modes sequentially to go directly from raw source files to cleaned outp
 
 **Why this matters:** Government data exports sometimes contain duplicate columns with slight variations (e.g., `Employer_City` and `Employer_City...23`).
 
-**How it works** (lines 344-420 in load_data_parallel.R):
+**How it works** (lines 434-510 in load_data_parallel.R):
 1. Identifies columns with the same base name (ignoring `.{3}NN` suffixes)
 2. Compares data in duplicate columns:
    - If **100% identical**: keeps first column, removes duplicates
@@ -277,7 +315,7 @@ File: 2015_Dec.csv (has 45 columns)
 
 ### 6. Parallel Processing
 
-**Configuration (line 34 in load_data_parallel.R):**
+**Configuration (line 37 in load_data_parallel.R):**
 ```r
 plan(multisession, workers = min(4, parallel::detectCores() - 1))
 ```
@@ -295,7 +333,7 @@ plan(multisession, workers = min(4, parallel::detectCores() - 1))
 
 **Hardware-specific considerations:**
 
-You may need to adjust the worker count: The default cap of 4 workers is optimized for 16GB RAM. Edit line 34 in `scripts/load_data_parallel.R` and change `min(4, ...)` to:
+You may need to adjust the worker count: The default cap of 4 workers is optimized for 16GB RAM. Edit line 37 in `misc/code/load_data_parallel.R` and change `min(4, ...)` to:
 - **More powerful machines** (64GB+ RAM): increase to 6-8 workers
 - **Less powerful machines** (8GB RAM): decrease to 2 workers
 - **Memory errors**: reduce workers or limit `year_range` to fewer years
@@ -327,8 +365,8 @@ Process reliable years (2010-2022) with default settings (includes both OPT and 
 ```r
 result <- combine_and_clean_data_optimized(
   root_dir = "/path/to/sevis/raw_data",
-  raw_output_dir = "/path/to/output/raw",
-  clean_output_dir = "/path/to/output/clean",
+  raw_output_dir = "/path/to/OPT-observatory/data/raw/USE_THESE__corrected_file_names",
+  clean_output_dir = "/path/to/OPT-observatory/data/cleaned_corrected_file_names",
   write_raw_files = TRUE,
   write_clean_files = TRUE,
   exclude_cols = DEFAULT_EXCLUDE_COLS,
@@ -345,8 +383,8 @@ Process reliable years (2010-2022), excluding CPT records for OPT-only analysis:
 ```r
 result <- combine_and_clean_data_optimized(
   root_dir = "/path/to/sevis/raw_data",
-  raw_output_dir = "/path/to/output/raw",
-  clean_output_dir = "/path/to/output/clean_opt_only",
+  raw_output_dir = "/path/to/OPT-observatory/data/raw/USE_THESE__corrected_file_names",
+  clean_output_dir = "/path/to/OPT-observatory/data/cleaned_corrected_file_names",
   write_raw_files = TRUE,
   write_clean_files = TRUE,
   exclude_cols = DEFAULT_EXCLUDE_COLS,
@@ -363,7 +401,7 @@ Combine source files without cleaning (useful for initial consolidation):
 ```r
 result <- combine_and_clean_data_optimized(
   root_dir = "/path/to/sevis/raw_data",
-  raw_output_dir = "/path/to/output/raw",
+  raw_output_dir = "/path/to/OPT-observatory/data/raw/USE_THESE__corrected_file_names",
   clean_output_dir = NULL,  # Not needed since we're not cleaning
   write_raw_files = TRUE,
   write_clean_files = FALSE,
@@ -381,8 +419,8 @@ Clean previously combined raw files (useful when re-running cleaning with differ
 ```r
 result <- combine_and_clean_data_optimized(
   root_dir = NULL,  # Not needed since we're not combining
-  raw_output_dir = "/path/to/output/raw",  # Input for cleaning
-  clean_output_dir = "/path/to/output/clean_with_cpt",
+  raw_output_dir = "/path/to/OPT-observatory/data/raw/USE_THESE__corrected_file_names",  # Input for cleaning
+  clean_output_dir = "/path/to/OPT-observatory/data/cleaned_corrected_file_names",
   write_raw_files = FALSE,
   write_clean_files = TRUE,
   exclude_cols = DEFAULT_EXCLUDE_COLS,
@@ -399,8 +437,8 @@ Test the pipeline on just one year:
 ```r
 result <- combine_and_clean_data_optimized(
   root_dir = "/path/to/sevis/raw_data",
-  raw_output_dir = "/path/to/output/test_raw",
-  clean_output_dir = "/path/to/output/test_clean",
+  raw_output_dir = "/path/to/OPT-observatory/data/raw/USE_THESE__corrected_file_names",
+  clean_output_dir = "/path/to/OPT-observatory/data/cleaned_corrected_file_names",
   write_raw_files = TRUE,
   write_clean_files = TRUE,
   exclude_cols = DEFAULT_EXCLUDE_COLS,
@@ -453,7 +491,7 @@ $cleaning_summary
 
 **Cause:** Insufficient RAM for number of workers
 **Solution:**
-1. Reduce number of workers (modify line 34 in script)
+1. Reduce number of workers (modify line 37 in script)
 2. Process fewer years at once (use `year_range` parameter)
 3. Process on machine with more RAM
 
@@ -482,14 +520,18 @@ This script was developed on **macOS (M3 Mac with 16GB RAM)** but should work on
 
 **3. File Paths**
 - The script uses the `fs` package which handles cross-platform paths automatically
-- **Important**: The example code at the bottom of the script (lines 976-985) contains Mac-specific paths
+- **Important**: The example code at the bottom of the script (lines 1094-1105) contains Mac-specific paths
 - **Windows users**: Replace with Windows paths using forward slashes or escaped backslashes:
   ```r
   # Option 1: Forward slashes (recommended)
   root_dir = "C:/Users/YourName/Data/sevis_raw"
+  raw_output_dir = "C:/Users/YourName/OPT-observatory/data/raw/USE_THESE__corrected_file_names"
+  clean_output_dir = "C:/Users/YourName/OPT-observatory/data/cleaned_corrected_file_names"
 
   # Option 2: Escaped backslashes
   root_dir = "C:\\Users\\YourName\\Data\\sevis_raw"
+  raw_output_dir = "C:\\Users\\YourName\\OPT-observatory\\data\\raw\\USE_THESE__corrected_file_names"
+  clean_output_dir = "C:\\Users\\YourName\\OPT-observatory\\data\\cleaned_corrected_file_names"
   ```
 
 **4. Memory Management**
@@ -528,8 +570,8 @@ This script was developed on **macOS (M3 Mac with 16GB RAM)** but should work on
 
 1. **Test first**: Run the script on a single year (`year_range = as.character(2020)`) before processing the full dataset
 2. **Monitor resources**: Watch memory usage during the first run to ensure your system can handle the workload
-3. **Adjust workers**: Modify line 34 based on your system's performance
-4. **Disable example code first**: Lines 976-985 contain example function calls that will execute immediately when you run the script. Comment them out or update the paths before running, otherwise the script will try to process data using the example paths:
+3. **Adjust workers**: Modify line 37 based on your system's performance
+4. **Disable example code first**: Lines 1094-1105 contain example function calls that will execute immediately when you run the script. Comment them out or update the paths before running, otherwise the script will try to process data using the example paths:
    ```r
    # result <- combine_and_clean_data_optimized(
    #   root_dir = "YOUR_PATH_HERE",
