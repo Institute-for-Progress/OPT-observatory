@@ -54,15 +54,17 @@ We believe that for any given year's file, if a student is active in SEVIS, ALL 
 
 
 Our working hypothesis is that each fiscal year includes all F-1 records for anyone who was active in SEVIS within that fiscal year. While we lack affirmative documentation of this, we know that across the respective years of cleaned files, 96-98% of are interpretable as being for someone who is studying or working in that fiscal year. Specifically, they have:
-A PROGRAM_START_DATE before the end of the fiscal year, AND 
-At least one of: an AUTHORIZATION_END_DATE after the start of the fiscal year, a blank or NA AUTHORIZATION_END_DATE, a PROGRAM_END_DATE after the start of the fiscal year. 
+- A PROGRAM_START_DATE before the end of the fiscal year, AND 
+- At least one of: an AUTHORIZATION_END_DATE after the start of the fiscal year, a blank or NA AUTHORIZATION_END_DATE, a PROGRAM_END_DATE after the start of the fiscal year. 
 
 The remaining 2-4% of records are for individuals who do not meet the above criterion, but we find it plausible that these are still individuals active in SEVIS. The inclusion criteria for each fiscal year likely depends on columns not included in our data which the condition above happens to approximate.
 
 ## Known Data Quality Issues
 There is **extensive missing data.** Many fields, especially ones related to employer location, are missing significant amounts of data and left blank. In some cases, it could be possible to backfill these (e.g. with employer addresses).
+
 **Data is often miscoded,** e.g. past events are dated in the future, vice versa. Program end dates may also be earlier than that program's start date. In general, nonsensical entries are nullified and not counted towards totals.
 There is no clear indicator of program completion or graduation in the data besides expected program end date, which is listed regardless of whether an enrollee has actually graduated.
+
 **FY2023 data issues.** The file labeled FY2023 is the smallest of any year's data, and produces unbelievable counts for metrics like enrolled international students and OPT participants. It has not been confirmed by the FOIA office, but we believe this data is severely truncated and unusable as a result. 
 
 ## Column Definitions
@@ -148,17 +150,17 @@ See SEVIS Help Hub → Student Records → Update Student Records → Financial 
 ### Status Information
 | Position | Column Name | Description | Data Type | Variability | Notes |
 |----------|------------|-------------|-----------|-------------|-------|
-|41|**REQUESTED_STATUS** | The visa type (if any) to which someone has requested to change to from their previous F-1 status | String | Variable | see below[^1]
+|41|**REQUESTED_STATUS** | The visa type (if any) to which someone has requested to change to from their previous F-1 status | String | Variable | see below^*
 |42|**STATUS_CODE** | Administrative status of a specific SEVIS record | String (lowercase) | Variable | Values: "completed", "deactivated", "terminated", "active", "canceled" |
 
-[^1]REQUESTED_STATUS codes are generally self-explanatory (e.g., "o1a" is O-1A). H-1B variants "1b1" and "h1b" are regular H-1Bs, while "1b2" is H-1B2, "1b3" is H-1B3, and "hsc" is H-1B1;
+*  REQUESTED_STATUS codes are generally self-explanatory (e.g., "o1a" is O-1A). H-1B variants "1b1" and "h1b" are regular H-1Bs, while "1b2" is H-1B2, "1b3" is H-1B3, and "hsc" is H-1B1;
 
 In general, these are technical terms that are often applied in ways unintuitive given their literal meanings. For example, the following are sufficient conditions for a record to have a particular STATUS_CODE:
-Active if the student is maintaining status in SEVIS.
-Completed if the record was closed out normally and was not terminated
-Terminated if the record is closed for one of several possible non-completion reasons, including death, expulsion, failure to report, an approved change of status or adjustment of status, or other reasons. To learn more, see SEVIS Help Hub → Student Records → Completions and Terminations → Termination Reasons. 
-Deactivated if a student begins a new program, e.g. a change in major, school, degree level, or possibly other changes.
-Canceled if the student does not report to the school by the report date and there is no port of entry data, for example, if the offer is withdrawn, the record was created in error, the student never attends the school, or other reasons. 
+- Active if the student is maintaining status in SEVIS.
+- Completed if the record was closed out normally and was not terminated
+- Terminated if the record is closed for one of several possible non-completion reasons, including death, expulsion, failure to report, an approved change of status or adjustment of status, or other reasons. To learn more, see SEVIS Help Hub → Student Records → Completions and Terminations → Termination Reasons. 
+- Deactivated if a student begins a new program, e.g. a change in major, school, degree level, or possibly other changes.
+- Canceled if the student does not report to the school by the report date and there is no port of entry data, for example, if the offer is withdrawn, the record was created in error, the student never attends the school, or other reasons. 
 
 ### Administrative Fields
 | Position | Column Name | Description | Data Type | Variability | Notes |
@@ -169,9 +171,9 @@ Canceled if the student does not report to the school by the report date and the
 Note that the raw data includes subfolders called `USE_THESE__corrected_file_names` and `AVOID_THESE__uncorrected_file_names`. This is because **we suspect a subset of the data provided by the FOIA office was initially labeled with the incorrect years.** The corrected file names adjust years initially labeled as FY 2004-2008 to FY 2005-2009, which we believe they actually represent.
 
 We believe these were labeled in error after observing that:
-The raw files originally labeled as FY 2009 and FY 2010 are identical
-There are significant discontinuities in student enrollments, OPT participation, and change of status request trends between these files 
-When the data labeled as FY2004-2008 are analyzed as if they were FY2005-2009 (each one year higher), these discontinuities resolve. The aforementioned trends become internally consistent with the other years’ files, and begin to match estimates from other sources for these years.
+- The raw files originally labeled as FY 2009 and FY 2010 are identical
+- There are significant discontinuities in student enrollments, OPT participation, and change of status request trends between these files 
+- When the data labeled as FY2004-2008 are analyzed as if they were FY2005-2009 (each one year higher), these discontinuities resolve. The aforementioned trends become internally consistent with the other years’ files, and begin to match estimates from other sources for these years.
 
 While this has not been verified with the FOIA office, we strongly suspect that the data labeled FY2009 was a duplicate of the one labeled FY2010, and those labeled FY2005-2008 were incorrectly titled. Going from the mislabeled → corrected data, this looks like: FY2004 → FY2005, FY2005 → FY2006, FY2006 → FY2007, FY2007 → FY2008, FY2008 → FY2009, and FY2009 (as a duplicate of FY 2010) can be removed.
 
