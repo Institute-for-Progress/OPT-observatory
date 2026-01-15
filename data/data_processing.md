@@ -69,8 +69,8 @@ The data processing involves multiple stages, with files organized across differ
 **Stage 2: Corrected Raw Files (Manually Renamed)**
 - **Location**: `data/raw/USE_THESE__corrected_file_names/`
 - **Created by**: Manual file copying and renaming
-- **Contents**: Copies of Stage 1 files with corrected year labels (e.g., what was labeled `2004_all.csv` is now `2005_all.csv`)
-- **Why**: Corrects the off-by-one year labeling error in files FY2004-2008 (which actually contain data for FY2005-2009)
+- **Contents**: Copies of Stage 1 files with corrected year labels (e.g., what was labeled `2005_all.csv` is now `2006_all.csv`). We believe the file labeled `2004_all.csv` is correctly labeled. The file labeled `2009_all.csv` appears to be a duplicate of 2010 and is removed.
+- **Why**: Corrects what we believe is an off-by-one year labeling error in files FY2005-2008 (which we believe actually contain data for FY2006-2009). We believe FY2005 was not included in the FOIA release, though this has not been confirmed.
 
 **Stage 3: Cleaned Files (Script-Generated from Stage 2)**
 - **Location**: `data/cleaned_corrected_file_names/`
@@ -210,7 +210,7 @@ Run both modes sequentially to go directly from raw source files to cleaned outp
 - **Purpose**: Process only specific years
 - **Important**: Always wrap years in `as.character()` - the function expects character strings, not integers
 - **Useful for**: Testing, incremental updates, targeted analyses
-- **Recommended range**: `as.character(2010:2022)` for reliable data (see Data Quality Note above)
+- **Recommended range**: `as.character(2010:2022)` for reliable data (see Data Quality Note above). Note that we believe FY2005 is missing from the FOIA release. We believe available years are FY2004, FY2006-2022. FY2023 is excluded due to incompleteness.
 
 ### `keep_cpt`
 - **Type**: Boolean
@@ -497,7 +497,7 @@ $cleaning_summary
 
 ## Performance Notes
 
-- **Processing time**: Full pipeline for 2004-2023 (~25 GB) typically takes 30-60 minutes on 4-core machine
+- **Processing time**: Full pipeline for available years FY2004, FY2006-2023 (~25 GB) typically takes 30-60 minutes on 4-core machine
 - **Memory usage**: Peak usage ~8-12 GB for parallel processing of 4 years
 - **Disk I/O**: Main bottleneck; SSD strongly recommended
 - **Parallelization efficiency**: Near-linear speedup up to 4 workers; diminishing returns beyond that
