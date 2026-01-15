@@ -3,8 +3,20 @@
 This page describes the structure and content of the data underlying the Institute for Progress's OPT Observatory. Obtained via a FOIA request from U.S. Immigration and Customs Enforcement (ICE), the data is an excerpt from the Student and Exchange Visitor Information System (SEVIS). While the OPT Observatory and the remainder of this document only describe the data on F-1 international students, information on J-1 exchange visitors was also included and is available with the downloadable data.
 
 ## Data Access
-- [Download the cleaned data](https://drive.google.com/drive/folders/1jHyayPqwMN969gPJoEs7t0wAsZcpwzC7?usp=sharing)(~25 GB)
-- The raw and cleaned data can be downloaded [here](https://drive.google.com/drive/folders/1RVCzAf6B8QIvd37PESSkKebhoi9psbFY?usp=share_link)(~75 GB). This includes both the cleaned data, and two sets of raw data (both the original from SEVIS and a corrected version—see the Data Mislabeling section below for more information). This is available for transparency and replicability for use with the OPT-Observatory Github repository, but we do not recommend users download this unless they intend to replicate our data cleaning process.
+The complete data package can be downloaded [here](https://drive.google.com/drive/folders/1RVCzAf6B8QIvd37PESSkKebhoi9psbFY?usp=share_link) (~75 GB) and contains:
+
+**Cleaned data (recommended):**
+- `cleaned_corrected_file_names/` - Contains cleaned files with corrected year labels for FY2004 and FY2006-2022 (we believe FY2005 is missing; FY2023 excluded due to incompleteness)
+
+**Raw data (for transparency):**
+- `raw/USE_THESE__corrected_file_names/` - Raw files with what we believe are correct year labels (FY2004, FY2006-2022)
+- `raw/AVOID_THESE__uncorrected_file_names/` - Raw files with original ICE labels (mislabeled; see Data Mislabeling section)
+
+**Documentation:**
+- `data_dictionary.md` (this file)
+- `data_processing.md`
+
+**We strongly recommend using the cleaned data** in `cleaned_corrected_file_names/` for analysis. The raw data is provided for transparency and replicability, but requires additional processing.
 
 The raw data was originally obtained via the ICE FOIA library in 13 parts (see release #43657, dated October 1st 2024). In the original release, each year of data contained multiple sub-component files. Our raw data aggregates these to a single file per year (but does not otherwise modify them). For more information on data processing, see the [Data Processing Guide](data_processing.md).
 
