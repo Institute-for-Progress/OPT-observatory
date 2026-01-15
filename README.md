@@ -1,6 +1,6 @@
-# Student and Exchange Visitor Information System (SEVIS): F-1 \& J-1 Study and Employment Data, FY2005-2022
+# Student and Exchange Visitor Information System (SEVIS): F-1 \& J-1 Study and Employment Data, FY2006-2022
 
-The Institute for Progress obtained detailed microdata excerpted from the Student and Exchange Visitor Information System (SEVIS), including information on the study and work patterns of all F-1 international students and J-1 exchange visitors in the United States from fiscal years 2004-2023. The data was requested from U.S. Immigration and Customs Enforcement (ICE) under the Freedom of Information Act (FOIA). 
+The Institute for Progress obtained detailed microdata excerpted from the Student and Exchange Visitor Information System (SEVIS), including information on the study and work patterns of all F-1 international students and J-1 exchange visitors in the United States from fiscal years 2004-2023. The data was requested from U.S. Immigration and Customs Enforcement (ICE) under the Freedom of Information Act (FOIA). Note that FY2005 was not included in the release, and FY2023 is incomplete. Our reliable, continuous coverage spans FY2006-2022. 
 
 ## Using the Data
 - [Download the clean data](https://drive.google.com/drive/folders/1jHyayPqwMN969gPJoEs7t0wAsZcpwzC7?usp=sharing) (~25GB). We strongly recommend using the cleaned files.
