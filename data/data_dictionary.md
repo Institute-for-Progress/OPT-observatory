@@ -12,12 +12,12 @@ The raw data was originally obtained via the ICE FOIA library in 13 parts (see r
 
 | Fiscal Year | Status | Notes |
 |-------------|--------|-------|
-| 2004 | ✓ Available | Correctly labeled |
-| 2005 | ✗ Missing | Not included in FOIA release |
-| 2006-2022 | ✓ Available | Files FY2005-2008 were mislabeled as containing FY2006-2009 data; corrected in `USE_THESE__corrected_file_names` |
+| 2004 | ✓ Available | We believe this file is correctly labeled |
+| 2005 | ✗ Appears Missing | We believe this was not included in FOIA release (not confirmed) |
+| 2006-2022 | ✓ Available | We believe files FY2005-2008 were mislabeled as containing FY2006-2009 data; corrected in `USE_THESE__corrected_file_names` |
 | 2023 | ⚠ Incomplete | Severely truncated; excluded from analyses |
 
-**Recommended for analysis:** FY2006-2022 provides reliable, continuous coverage.
+**Recommended for analysis:** FY2006-2022 provides what we believe to be reliable, continuous coverage.
 
 ## Data Structure
 ### How Are Records Organized?
@@ -78,7 +78,7 @@ There is no clear indicator of program completion or graduation in the data besi
 
 **FY2023 data issues.** The file labeled FY2023 is the smallest of any year's data, and produces unbelievable counts for metrics like enrolled international students and OPT participants. It has not been confirmed by the FOIA office, but we believe this data is severely truncated and unusable as a result.
 
-**FY2005 data missing.** The file for FY2005 was not included in the FOIA release. As described in the Data Mislabeling section, our continuous coverage spans FY2006-2022. FY2004 is also available but is separated by the missing FY2005. 
+**FY2005 data appears to be missing.** We believe the file for FY2005 was not included in the FOIA release, though this has not been confirmed by the FOIA office. As described in the Data Mislabeling section, our continuous coverage spans FY2006-2022. FY2004 is also available but is separated by what appears to be missing FY2005 data. 
 
 ## Column Definitions
 Data provided by ICE was not accompanied by documentation. Our best working interpretation of each variable in the data appears below. Please contact the authors if you have further information.
@@ -181,14 +181,14 @@ In general, these are technical terms that are often applied in ways unintuitive
 |46|**Year** | Federal fiscal year indicator | Integer | - | FY is Oct 1 - Sept 30; indicates which year file contains this record |
 
 ## Data Mislabeling
-Note that the raw data includes subfolders called `USE_THESE__corrected_file_names` and `AVOID_THESE__uncorrected_file_names`. This is because **we suspect a subset of the data provided by the FOIA office was initially labeled with the incorrect years.** Through cross-validation and analysis of internal dates, we determined that the file labeled as FY2004 is correct, but FY2005 is missing from the release, and the corrected file names adjust years initially labeled as FY 2005-2008 to FY 2006-2009, which we believe they actually represent.
+Note that the raw data includes subfolders called `USE_THESE__corrected_file_names` and `AVOID_THESE__uncorrected_file_names`. This is because **we suspect a subset of the data provided by the FOIA office was initially labeled with the incorrect years.** Through cross-validation and analysis of internal dates, we believe that the file labeled as FY2004 is correct, but FY2005 appears to be missing from the release, and the corrected file names adjust years initially labeled as FY 2005-2008 to FY 2006-2009, which we believe they actually represent.
 
 We believe these were labeled in error after observing that:
 - The raw files originally labeled as FY 2009 and FY 2010 are identical
 - There are significant discontinuities in student enrollments, OPT participation, and change of status request trends between these files
 - When the data labeled as FY2005-2008 are analyzed as if they were FY2006-2009 (each one year higher), these discontinuities resolve. The aforementioned trends become internally consistent with the other years' files, and begin to match estimates from other sources for these years.
 
-While this has not been verified with the FOIA office, we strongly suspect that FY2005 data was not included in the release, the data labeled FY2009 was a duplicate of the one labeled FY2010, and those labeled FY2005-2008 were incorrectly titled. Going from the mislabeled → corrected data, this looks like: FY2004 remains FY2004, FY2005 → FY2006, FY2006 → FY2007, FY2007 → FY2008, FY2008 → FY2009, and FY2009 (as a duplicate of FY 2010) can be removed. As a result, FY2005 data is missing, and our continuous coverage spans FY2006-2022.
+While this has not been verified with the FOIA office, we strongly suspect that FY2005 data was not included in the release, the data labeled FY2009 was a duplicate of the one labeled FY2010, and those labeled FY2005-2008 were incorrectly titled. Going from the mislabeled → corrected data, this looks like: FY2004 remains FY2004, FY2005 → FY2006, FY2006 → FY2007, FY2007 → FY2008, FY2008 → FY2009, and FY2009 (as a duplicate of FY 2010) can be removed. As a result, we believe FY2005 data is missing, and our continuous coverage spans FY2006-2022.
 
 ## Questions or Issues?
 If you identify new data quality issues or have questions about the data, please reach out to violet@ifp.org.
