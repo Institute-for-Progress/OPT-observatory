@@ -75,7 +75,7 @@ The data processing involves multiple stages, with files organized across differ
 **Stage 3: Cleaned Files (Script-Generated from Stage 2)**
 - **Location**: `data/cleaned_corrected_file_names/`
 - **Created by**: `load_data_parallel.R` (Mode 2: Data Cleaning) using Stage 2 files as input
-- **Contents**: Extensively cleaned yearly CSV files with corrected year labels (e.g., `cleaned_2005_all.csv`)
+- **Contents**: Extensively cleaned yearly CSV files with corrected year labels for FY2004 and FY2006-2022 (e.g., `cleaned_2006_all.csv`, `cleaned_2007_all.csv`). We believe FY2005 is missing from the FOIA release.
 
 ### Important: Always Use Corrected File Names
 
@@ -497,7 +497,7 @@ $cleaning_summary
 
 ## Performance Notes
 
-- **Processing time**: Full pipeline for available years FY2004, FY2006-2023 (~25 GB) typically takes 30-60 minutes on 4-core machine
+- **Processing time**: Full pipeline for available years FY2004, FY2006-2022 (~25 GB) typically takes 30-60 minutes on 4-core machine
 - **Memory usage**: Peak usage ~8-12 GB for parallel processing of 4 years
 - **Disk I/O**: Main bottleneck; SSD strongly recommended
 - **Parallelization efficiency**: Near-linear speedup up to 4 workers; diminishing returns beyond that
