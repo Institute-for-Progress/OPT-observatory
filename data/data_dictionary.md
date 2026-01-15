@@ -78,7 +78,7 @@ There is no clear indicator of program completion or graduation in the data besi
 
 **FY2023 data issues.** The file labeled FY2023 is the smallest of any year's data, and produces unbelievable counts for metrics like enrolled international students and OPT participants. It has not been confirmed by the FOIA office, but we believe this data is severely truncated and unusable as a result.
 
-**FY2005 data appears to be missing.** We believe the file for FY2005 was not included in the FOIA release, though this has not been confirmed by the FOIA office. As described in the Data Mislabeling section, our continuous coverage spans FY2006-2022. FY2004 is also available but is separated by what appears to be missing FY2005 data. 
+**FY2005 data appears to be missing.** We believe the file for FY2005 was not included in the FOIA release, though this has not been confirmed by the FOIA office. As described in the Data Mislabeling section, our continuous coverage spans FY2006-2022. FY2004 is also available, though it is not continuous with FY2006-2022 due to what appears to be missing FY2005 data. 
 
 ## Column Definitions
 Data provided by ICE was not accompanied by documentation. Our best working interpretation of each variable in the data appears below. Please contact the authors if you have further information.
