@@ -50,7 +50,7 @@ Each step of the cleaning process for F-1 SEVIS microdata from this release is d
 
 **Data Quality Note**: This SEVIS data release contains several significant quality issues including year mislabeling and incomplete data. For detailed information, see:
 - [Data Mislabeling](data_dictionary.md#data-mislabeling) - Explains the year labeling issue and why corrected file names are provided
-- [Known Data Quality Issues](data_dictionary.md#known-data-quality-issues) - Documents missing data, miscoded values, and FY2023 truncation issues
+- [Known Data Quality Issues](data_dictionary.md#known-data-quality-issues) - Documents missing data, miscoded values, employer and employment authorization irreconcilability from FY2015 onward, and FY2023 truncation issues
 
 **For detailed information** about data structure, column definitions, and how records are organized, see the **[Data Dictionary](data_dictionary.md)**.
 
