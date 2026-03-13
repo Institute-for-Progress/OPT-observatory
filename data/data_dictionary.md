@@ -36,7 +36,7 @@ The raw data was originally obtained via the ICE FOIA library in 13 parts (see r
 **SEVIS as a log of events**
 
 
-**SEVIS is NOT a person-centric database** and information about a given individual is often distributed across multiple rows. Instead, **each row represents a discrete event**. Most individuals undergo multiple different events related to their education or work, and have multiple corresponding records (rows) in SEVIS. For example, a new record may be created when:
+**SEVIS is NOT a person-centric database** and information about a given individual is often distributed across multiple rows. Instead, **each row represents a discrete event**. Most individuals undergo multiple different events related to their education or work, and have multiple corresponding records (rows) in SEVIS. Note that for FY2015 and later, this does not hold cleanly for employment records — see Known Data Quality Issues below. For example, a new record may be created when:
 
 - Someone enters or exits the United States
 - Their visa status changes
@@ -87,6 +87,8 @@ There is **extensive missing data.** Many fields, especially ones related to emp
 
 **Data is often miscoded,** e.g. past events are dated in the future, vice versa. Program end dates may also be earlier than that program's start date. In general, nonsensical entries are nullified and not counted towards totals.
 There is no clear indicator of program completion or graduation in the data besides expected program end date, which is listed regardless of whether an enrollee has actually graduated.
+
+**Employers and specific periods of employment authorization cannot be reliably reconciled from FY2015 onward.** What appears to be a structural error in the FOIA export causes each of a student's employers to be listed alongside all of their authorization periods, rather than only the period(s) during which they actually worked for that employer. Pre-FY2015 data, individual-level fields (demographics, school, and financial information), and the ability to identify which employers or authorization types a student had are unaffected. Specific employer-authorization pairings and row-count-based employment metrics should not be used for FY2015 onward.
 
 **FY2023 data issues.** The file labeled FY2023 is the smallest of any year's data, and produces unbelievable counts for metrics like enrolled international students and OPT participants. It has not been confirmed by the FOIA office, but we believe this data is severely truncated and unusable as a result.
 

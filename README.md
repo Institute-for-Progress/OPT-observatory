@@ -6,6 +6,7 @@ The Institute for Progress obtained detailed microdata excerpted from the Studen
 - [Download the clean data](https://drive.google.com/drive/folders/1jHyayPqwMN969gPJoEs7t0wAsZcpwzC7?usp=sharing) (~25GB). We strongly recommend using the cleaned files.
 - Read the [data dictionary](data/data_dictionary.md), which describes the cleaned data to the best of our ability, as it was not accompanied by any official documentation
 - See the [data processing documentation](data/data_processing.md) for detailed information on how we produced both annual raw and cleaned files.
+- Review the [Known Data Quality Issues](data/data_dictionary.md#known-data-quality-issues) section of the data dictionary, particularly if your analysis involves employment records from FY2015 onward.
 
 ## Attribution
 
