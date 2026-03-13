@@ -2,6 +2,10 @@
 
 The Institute for Progress obtained detailed microdata excerpted from the Student and Exchange Visitor Information System (SEVIS), including information on the study and work patterns of all F-1 international students and J-1 exchange visitors in the United States from fiscal years 2004-2023. The data was requested from U.S. Immigration and Customs Enforcement (ICE) under the Freedom of Information Act (FOIA). Note that we believe FY2005 was not included in the release (though not confirmed), and FY2023 is incomplete. Our reliable, continuous coverage spans FY2006-2022. Note that we believe FY2005 was not included in the release (though not confirmed), and FY2023 is incomplete. Our reliable, continuous coverage spans FY2006-2022. 
 
+## Post-release Updates
+January 2026: We initially thought the data provided for FY 2004 was actually from FY 2005. We now believe it was correctly labeled as FY 2004, and that our data does not include information for FY 2005.
+March 2026: From FY 2015 on, it appears that an error in the query producing the FOIA data files makes it so that for each unique individual in the data, that person's unique employers are listed along every one of their unique periods of employment authorization, as opposed to only listing employers alongside the period during which that individual was actually employed by them. This means it is not possible to determine with certainty when an individual worked at each of their employers (or resided in their vicinity) for files after FY 2015. See known data issues for explanation of how this may affect various analyses.
+
 ## Using the Data
 - [Download the clean data](https://drive.google.com/drive/folders/1jHyayPqwMN969gPJoEs7t0wAsZcpwzC7?usp=sharing) (~25GB). We strongly recommend using the cleaned files.
 - Read the [data dictionary](data/data_dictionary.md), which describes the cleaned data to the best of our ability, as it was not accompanied by any official documentation
